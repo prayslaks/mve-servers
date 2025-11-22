@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVE API Tester</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #333; margin-bottom: 20px; }
+        .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section h2 { margin-top: 0; color: #444; border-bottom: 2px solid #4CAF50; padding-bottom: 10px; }
+        .api-group { margin-bottom: 15px; padding: 15px; background: #f9f9f9; border-radius: 4px; }
+        .api-group h3 { margin: 0 0 10px 0; font-size: 14px; color: #666; }
+        .input-group { margin-bottom: 10px; }
+        .input-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
+        .input-group input, .input-group textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .input-group textarea { height: 80px; resize: vertical; }
+        button { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 5px; margin-bottom: 5px; }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-secondary { background: #2196F3; color: white; }
+        .btn-danger { background: #f44336; color: white; }
+        .btn-warning { background: #ff9800; color: white; }
+        button:hover { opacity: 0.9; }
+        .response { margin-top: 10px; padding: 10px; background: #263238; color: #aed581; border-radius: 4px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+        .token-display { background: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 15px; word-break: break-all; font-size: 12px; }
+        .status { padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; }
+        .status-success { background: #c8e6c9; color: #2e7d32; }
+        .status-error { background: #ffcdd2; color: #c62828; }
+        .flex { display: flex; gap: 10px; }
+        .flex > * { flex: 1; }
+        .server-config { display: flex; gap: 10px; margin-bottom: 15px; }
+        .server-config input { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MVE API Tester</h1>
+
+        <!-- Server Configuration -->
+        <div class="section">
+            <h2>Server Configuration</h2>
+            <div class="server-config">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label>Login Server URL</label>
+                    <input type="text" id="loginServerUrl" value="http://localhost:3000">
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label>Resource Server URL</label>
+                    <input type="text" id="resourceServerUrl" value="http://localhost:3001">
+                </div>
+            </div>
+            <div class="token-display">
+                <strong>Current JWT Token:</strong><br>
+                <span id="currentToken">No token</span>
+            </div>
+        </div>
+
+        <!-- Login Server APIs -->
+        <div class="section">
+            <h2>Login Server APIs</h2>
+
+            <!-- Health Check -->
+            <div class="api-group">
+                <h3>GET /health - Health Check</h3>
+                <button class="btn-primary" onclick="testLoginHealth()">Test Health</button>
+                <div class="response" id="healthResponse"></div>
+            </div>
+
+            <!-- Check Email -->
+            <div class="api-group">
+                <h3>POST /api/auth/check-email - Check Email Availability</h3>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="checkEmail" placeholder="test@example.com">
+                </div>
+                <button class="btn-primary" onclick="checkEmail()">Check Email</button>
+                <div class="response" id="checkEmailResponse"></div>
+            </div>
+
+            <!-- Send Verification -->
+            <div class="api-group">
+                <h3>POST /api/auth/send-verification - Send Verification Code</h3>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="verifyEmail" placeholder="test@example.com">
+                </div>
+                <button class="btn-warning" onclick="sendVerification()">Send Code</button>
+                <div class="response" id="sendVerificationResponse"></div>
+            </div>
+
+            <!-- Verify Code -->
+            <div class="api-group">
+                <h3>POST /api/auth/verify-code - Verify Code</h3>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="verifyCodeEmail" placeholder="test@example.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Code (6 digits)</label>
+                        <input type="text" id="verifyCode" placeholder="123456">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="verifyCode()">Verify Code</button>
+                <div class="response" id="verifyCodeResponse"></div>
+            </div>
+
+            <!-- Signup -->
+            <div class="api-group">
+                <h3>POST /api/auth/signup - Sign Up</h3>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="signupUsername" placeholder="testuser">
+                    </div>
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="signupEmail" placeholder="test@example.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="signupPassword" placeholder="password123">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="signup()">Sign Up</button>
+                <div class="response" id="signupResponse"></div>
+            </div>
+
+            <!-- Login -->
+            <div class="api-group">
+                <h3>POST /api/auth/login - Login</h3>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="loginUsername" placeholder="testuser">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="password123">
+                    </div>
+                </div>
+                <button class="btn-secondary" onclick="login()">Login & Save Token</button>
+                <div class="response" id="loginResponse"></div>
+            </div>
+
+            <!-- Profile -->
+            <div class="api-group">
+                <h3>GET /api/auth/profile - Get Profile (JWT Required)</h3>
+                <button class="btn-primary" onclick="getProfile()">Get Profile</button>
+                <div class="response" id="profileResponse"></div>
+            </div>
+
+            <!-- Logout -->
+            <div class="api-group">
+                <h3>POST /api/auth/logout - Logout (JWT Required)</h3>
+                <button class="btn-warning" onclick="logout()">Logout</button>
+                <div class="response" id="logoutResponse"></div>
+            </div>
+
+            <!-- Withdraw -->
+            <div class="api-group">
+                <h3>DELETE /api/auth/withdraw - Delete Account (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Password (현재 비밀번호 확인)</label>
+                    <input type="password" id="withdrawPassword" placeholder="current password">
+                </div>
+                <button class="btn-danger" onclick="withdraw()">Delete Account</button>
+                <div class="response" id="withdrawResponse"></div>
+            </div>
+        </div>
+
+        <!-- Resource Server APIs -->
+        <div class="section">
+            <h2>Resource Server APIs</h2>
+
+            <!-- Health Check -->
+            <div class="api-group">
+                <h3>GET /health - Health Check</h3>
+                <button class="btn-primary" onclick="testResourceHealth()">Test Health</button>
+                <div class="response" id="resourceHealthResponse"></div>
+            </div>
+
+            <!-- Audio List -->
+            <div class="api-group">
+                <h3>GET /api/audio/list - Get Audio List (JWT Required)</h3>
+                <button class="btn-primary" onclick="getAudioList()">Get Audio List</button>
+                <div class="response" id="audioListResponse"></div>
+            </div>
+
+            <!-- Audio Info -->
+            <div class="api-group">
+                <h3>GET /api/audio/:id - Get Audio Info (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Audio ID</label>
+                    <input type="number" id="audioId" placeholder="Enter Audio ID">
+                </div>
+                <button class="btn-primary" onclick="getAudioInfo()">Get Audio Info</button>
+                <div class="response" id="audioInfoResponse"></div>
+            </div>
+
+            <!-- Audio Search -->
+            <div class="api-group">
+                <h3>GET /api/audio/search/:query - Search Audio (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Search Query</label>
+                    <input type="text" id="audioSearchQuery" placeholder="song name">
+                </div>
+                <button class="btn-primary" onclick="searchAudio()">Search Audio</button>
+                <div class="response" id="audioSearchResponse"></div>
+            </div>
+
+            <!-- Audio Upload -->
+            <div class="api-group">
+                <h3>POST /api/audio/upload - Upload Audio (JWT Required)</h3>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Title</label>
+                        <input type="text" id="uploadTitle" placeholder="Song Title">
+                    </div>
+                    <div class="input-group">
+                        <label>Artist</label>
+                        <input type="text" id="uploadArtist" placeholder="Artist Name">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Audio File (AAC, M4A, MP3, WAV)</label>
+                    <input type="file" id="uploadAudioFile" accept=".aac,.m4a,.mp3,.wav">
+                </div>
+                <button class="btn-primary" onclick="uploadAudio()">Upload Audio</button>
+                <div class="response" id="uploadAudioResponse"></div>
+            </div>
+
+            <!-- Audio Stream -->
+            <div class="api-group">
+                <h3>GET /api/audio/stream/:id - Stream Audio (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Audio ID</label>
+                    <input type="number" id="streamAudioId" placeholder="Enter Audio ID">
+                </div>
+                <button class="btn-secondary" onclick="streamAudio()">Get Stream URL</button>
+                <div class="response" id="streamAudioResponse"></div>
+            </div>
+
+            <!-- Model List -->
+            <div class="api-group">
+                <h3>GET /api/models/list - Get Model List (JWT Required)</h3>
+                <button class="btn-primary" onclick="getModelList()">Get Model List</button>
+                <div class="response" id="modelListResponse"></div>
+            </div>
+
+            <!-- Model Info -->
+            <div class="api-group">
+                <h3>GET /api/models/:id - Get Model Info (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Model ID</label>
+                    <input type="number" id="modelId" placeholder="1">
+                </div>
+                <button class="btn-primary" onclick="getModelInfo()">Get Model Info</button>
+                <div class="response" id="modelInfoResponse"></div>
+            </div>
+
+            <!-- Register Model -->
+            <div class="api-group">
+                <h3>POST /api/models/register - Register Model (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Model Data (JSON)</label>
+                    <textarea id="registerModelData">{
+    "name": "My Model",
+    "file_path": "/models/my-model.glb",
+    "description": "Test model"
+}</textarea>
+                </div>
+                <button class="btn-primary" onclick="registerModel()">Register Model</button>
+                <div class="response" id="registerModelResponse"></div>
+            </div>
+
+            <!-- Update Model -->
+            <div class="api-group">
+                <h3>PUT /api/models/:id - Update Model (JWT Required)</h3>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Model ID</label>
+                        <input type="number" id="updateModelId" placeholder="1">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Update Data (JSON)</label>
+                    <textarea id="updateModelData">{
+    "name": "Updated Model",
+    "description": "Updated description"
+}</textarea>
+                </div>
+                <button class="btn-warning" onclick="updateModel()">Update Model</button>
+                <div class="response" id="updateModelResponse"></div>
+            </div>
+
+            <!-- Delete Model -->
+            <div class="api-group">
+                <h3>DELETE /api/models/:id - Delete Model (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Model ID</label>
+                    <input type="number" id="deleteModelId" placeholder="1">
+                </div>
+                <button class="btn-danger" onclick="deleteModel()">Delete Model</button>
+                <div class="response" id="deleteModelResponse"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let jwtToken = localStorage.getItem('mve_jwt_token') || '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTokenDisplay();
+        });
+
+        function updateTokenDisplay() {
+            const display = document.getElementById('currentToken');
+            if (jwtToken) {
+                display.textContent = jwtToken;
+            } else {
+                display.textContent = 'No token';
+            }
+        }
+
+        function getLoginServerUrl() {
+            return document.getElementById('loginServerUrl').value;
+        }
+
+        function getResourceServerUrl() {
+            return document.getElementById('resourceServerUrl').value;
+        }
+
+        function getAuthHeaders() {
+            return jwtToken ? { 'Authorization': `Bearer ${jwtToken}` } : {};
+        }
+
+        async function apiCall(url, options = {}) {
+            const startTime = Date.now();
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
+                        ...options.headers
+                    }
+                });
+                const data = await response.json();
+                const duration = Date.now() - startTime;
+                return {
+                    status: response.status,
+                    statusText: response.statusText,
+                    duration: `${duration}ms`,
+                    data
+                };
+            } catch (error) {
+                const duration = Date.now() - startTime;
+                return {
+                    status: 'ERROR',
+                    duration: `${duration}ms`,
+                    error: error.message
+                };
+            }
+        }
+
+        function displayResponse(elementId, response) {
+            document.getElementById(elementId).textContent = JSON.stringify(response, null, 2);
+        }
+
+        // Login Server APIs
+        async function testLoginHealth() {
+            const response = await apiCall(`${getLoginServerUrl()}/health`);
+            displayResponse('healthResponse', response);
+        }
+
+        async function checkEmail() {
+            const email = document.getElementById('checkEmail').value;
+            const response = await apiCall(`${getLoginServerUrl()}/api/auth/check-email`, {
+                method: 'POST',
+                body: JSON.stringify({ email })
+            });
+            displayResponse('checkEmailResponse', response);
+        }
+
+        async function sendVerification() {
+            const email = document.getElementById('verifyEmail').value;
+            const response = await apiCall(`${getLoginServerUrl()}/api/auth/send-verification`, {
+                method: 'POST',
+                body: JSON.stringify({ email })
+            });
+            displayResponse('sendVerificationResponse', response);
+        }
+
+        async function verifyCode() {
+            const email = document.getElementById('verifyCodeEmail').value;
+            const code = document.getElementById('verifyCode').value;
+            const response = await apiCall(`${getLoginServerUrl()}/api/auth/verify-code`, {
+                method: 'POST',
+                body: JSON.stringify({ email, code })
+            });
+            displayResponse('verifyCodeResponse', response);
+        }
+
+        async function signup() {
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const response = await apiCall(`${getLoginServerUrl()}/api/auth/signup`, {
+                method: 'POST',
+                body: JSON.stringify({ username, email, password })
+            });
+            displayResponse('signupResponse', response);
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const response = await apiCall(`${getLoginServerUrl()}/api/auth/login`, {
+                method: 'POST',
+                body: JSON.stringify({ username, password })
+            });
+            displayResponse('loginResponse', response);
+
+            // Save token if login successful
+            if (response.data && response.data.token) {
+                jwtToken = response.data.token;
+                localStorage.setItem('mve_jwt_token', jwtToken);
+                updateTokenDisplay();
+            }
+        }
+
+        async function getProfile() {
+            const response = await apiCall(`${getLoginServerUrl()}/api/auth/profile`);
+            displayResponse('profileResponse', response);
+        }
+
+        async function logout() {
+            const response = await apiCall(`${getLoginServerUrl()}/api/auth/logout`, {
+                method: 'POST'
+            });
+            displayResponse('logoutResponse', response);
+
+            if (response.data && response.data.success) {
+                jwtToken = '';
+                localStorage.removeItem('mve_jwt_token');
+                updateTokenDisplay();
+            }
+        }
+
+        async function withdraw() {
+            const password = document.getElementById('withdrawPassword').value;
+            if (!password) {
+                displayResponse('withdrawResponse', { error: 'Password is required' });
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                return;
+            }
+
+            const response = await apiCall(`${getLoginServerUrl()}/api/auth/withdraw`, {
+                method: 'DELETE',
+                body: JSON.stringify({ password })
+            });
+            displayResponse('withdrawResponse', response);
+
+            if (response.data && response.data.success) {
+                jwtToken = '';
+                localStorage.removeItem('mve_jwt_token');
+                updateTokenDisplay();
+            }
+        }
+
+        // Resource Server APIs
+        async function testResourceHealth() {
+            const response = await apiCall(`${getResourceServerUrl()}/health`);
+            displayResponse('resourceHealthResponse', response);
+        }
+
+        async function getAudioList() {
+            const response = await apiCall(`${getResourceServerUrl()}/api/audio/list`);
+            displayResponse('audioListResponse', response);
+        }
+
+        async function getAudioInfo() {
+            const id = document.getElementById('audioId').value;
+            const response = await apiCall(`${getResourceServerUrl()}/api/audio/${id}`);
+            displayResponse('audioInfoResponse', response);
+        }
+
+        async function searchAudio() {
+            const query = document.getElementById('audioSearchQuery').value;
+            const response = await apiCall(`${getResourceServerUrl()}/api/audio/search/${encodeURIComponent(query)}`);
+            displayResponse('audioSearchResponse', response);
+        }
+
+        async function uploadAudio() {
+            const title = document.getElementById('uploadTitle').value;
+            const artist = document.getElementById('uploadArtist').value;
+            const fileInput = document.getElementById('uploadAudioFile');
+
+            if (!fileInput.files[0]) {
+                displayResponse('uploadAudioResponse', { error: 'No file selected' });
+                return;
+            }
+
+            if (!title) {
+                displayResponse('uploadAudioResponse', { error: 'Title is required' });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('audio', fileInput.files[0]);
+            formData.append('title', title);
+            if (artist) formData.append('artist', artist);
+
+            const startTime = Date.now();
+            try {
+                const response = await fetch(`${getResourceServerUrl()}/api/audio/upload`, {
+                    method: 'POST',
+                    headers: {
+                        ...getAuthHeaders()
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+                const duration = Date.now() - startTime;
+                displayResponse('uploadAudioResponse', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    duration: `${duration}ms`,
+                    data
+                });
+            } catch (error) {
+                const duration = Date.now() - startTime;
+                displayResponse('uploadAudioResponse', {
+                    status: 'ERROR',
+                    duration: `${duration}ms`,
+                    error: error.message
+                });
+            }
+        }
+
+        async function streamAudio() {
+            const id = document.getElementById('streamAudioId').value;
+            const startTime = Date.now();
+            try {
+                const response = await fetch(`${getResourceServerUrl()}/api/audio/stream/${id}`, {
+                    headers: getAuthHeaders()
+                });
+                const duration = Date.now() - startTime;
+                const contentType = response.headers.get('content-type');
+
+                // S3 모드: JSON 응답 (presigned URL)
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    displayResponse('streamAudioResponse', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        duration: `${duration}ms`,
+                        data
+                    });
+                } else {
+                    // 로컬 모드: 바이너리 스트리밍
+                    displayResponse('streamAudioResponse', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        duration: `${duration}ms`,
+                        message: 'Local streaming mode - binary data returned',
+                        contentType: contentType,
+                        contentLength: response.headers.get('content-length'),
+                        streamUrl: `${getResourceServerUrl()}/api/audio/stream/${id}`
+                    });
+                }
+            } catch (error) {
+                const duration = Date.now() - startTime;
+                displayResponse('streamAudioResponse', {
+                    status: 'ERROR',
+                    duration: `${duration}ms`,
+                    error: error.message
+                });
+            }
+        }
+
+        async function getModelList() {
+            const response = await apiCall(`${getResourceServerUrl()}/api/models/list`);
+            displayResponse('modelListResponse', response);
+        }
+
+        async function getModelInfo() {
+            const id = document.getElementById('modelId').value;
+            const response = await apiCall(`${getResourceServerUrl()}/api/models/${id}`);
+            displayResponse('modelInfoResponse', response);
+        }
+
+        async function registerModel() {
+            const data = document.getElementById('registerModelData').value;
+            try {
+                const response = await apiCall(`${getResourceServerUrl()}/api/models/register`, {
+                    method: 'POST',
+                    body: data
+                });
+                displayResponse('registerModelResponse', response);
+            } catch (e) {
+                displayResponse('registerModelResponse', { error: 'Invalid JSON' });
+            }
+        }
+
+        async function updateModel() {
+            const id = document.getElementById('updateModelId').value;
+            const data = document.getElementById('updateModelData').value;
+            try {
+                const response = await apiCall(`${getResourceServerUrl()}/api/models/${id}`, {
+                    method: 'PUT',
+                    body: data
+                });
+                displayResponse('updateModelResponse', response);
+            } catch (e) {
+                displayResponse('updateModelResponse', { error: 'Invalid JSON' });
+            }
+        }
+
+        async function deleteModel() {
+            const id = document.getElementById('deleteModelId').value;
+            if (confirm(`Are you sure you want to delete model ${id}?`)) {
+                const response = await apiCall(`${getResourceServerUrl()}/api/models/${id}`, {
+                    method: 'DELETE'
+                });
+                displayResponse('deleteModelResponse', response);
+            }
+        }
+    </script>
+</body>
+</html>

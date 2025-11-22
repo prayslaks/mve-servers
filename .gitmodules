@@ -1,0 +1,6 @@
+[submodule "mve-login-server"]
+	path = mve-login-server
+	url = https://github.com/prayslaks/mve-login-server.git
+[submodule "mve-resource-server"]
+	path = mve-resource-server
+	url = https://github.com/prayslaks/mve-resource-server.git

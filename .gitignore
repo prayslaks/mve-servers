@@ -1,0 +1,24 @@
+# Claude Code
+.claude/
+
+# IDE
+*.code-workspace
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
