@@ -1,4 +1,4 @@
-# MVE (Music Visualization Experience)
+# MVE 프로젝트
 
 원티드 포텐업 [언리얼 & AI] 최종 프로젝트의 서버 모노레포입니다.<br>
 인증 및 리소스 서버는 AWS EC2 인스턴스에 배포하고 파일 서버로 AWS S3 버킷을 사용하는 것을 상정합니다.<br>
@@ -76,14 +76,35 @@ STORAGE_TYPE=s3
 S3_BUCKET=your_bucket
 AWS_REGION=your_region
 
-# 최소 32자 이상의 랜덤 JWT 비밀 키 (리소스 서버의 JWT 키와 동일해야 함)
+# 최소 32자 이상의 랜덤 JWT 비밀 키 (로그인 서버의 JWT 키와 동일해야 함)
 JWT_SECRET=your_secret_key_here_make_it_long_and_random
 
 # AWS S3 버킷 경로 (음원 및 모델링 파일이 저장된 파일 서버)
 FILE_SERVER_PATH=./files
 ```
 
-**⚠️ 주의**: 자세한 내용은 각 리포지토리의 README.md를 참고해 설정합니다.
+```env
+# 서버 포트
+PORT=3001
+
+# 데이터베이스 환경 설정 (로그인 서버와 동일해야 함)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=mve_login_db
+
+# 스토리지 환경 설정 (값이 's3'가 아니라면 자동으로 로컬 스토리지로 간주)
+STORAGE_TYPE=local
+
+# 최소 32자 이상의 랜덤 JWT 비밀 키 (로그인 서버의 JWT 키와 동일해야 함)
+JWT_SECRET=your_secret_key_here_make_it_long_and_random
+
+# 로컬 스토리지 경로 (음원 및 모델링 파일이 저장된 파일 서버)
+FILE_SERVER_PATH=./files
+```
+
+**⚠️ 주의**: 자세한 내용은 각 서브모듈 리포지토리의 README.md와 .env.example을 참고해 설정합니다.
 
 ---
 
