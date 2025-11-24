@@ -243,6 +243,18 @@
                 <div class="response" id="streamAudioResponse"></div>
             </div>
 
+            <!-- Audio Player -->
+            <div class="api-group">
+                <h3>Audio Player - Play from Stream URL</h3>
+                <div class="input-group">
+                    <label>Stream URL</label>
+                    <input type="text" id="audioStreamUrl" placeholder="Enter stream URL or presigned URL">
+                </div>
+                <button class="btn-secondary" onclick="playStreamUrl()">Play</button>
+                <audio id="audioPlayer" controls style="width: 100%; margin-top: 10px; display: none;"></audio>
+                <div class="response" id="audioPlayerResponse"></div>
+            </div>
+
             <!-- Model List -->
             <div class="api-group">
                 <h3>GET /api/models/list - Get Model List (JWT Required)</h3>
@@ -632,6 +644,32 @@
                 });
                 displayResponse('deleteModelResponse', response);
             }
+        }
+
+        function playStreamUrl() {
+            const url = document.getElementById('audioStreamUrl').value;
+            const player = document.getElementById('audioPlayer');
+
+            if (!url) {
+                displayResponse('audioPlayerResponse', { error: 'Please enter a stream URL' });
+                return;
+            }
+
+            player.src = url;
+            player.style.display = 'block';
+            player.play()
+                .then(() => {
+                    displayResponse('audioPlayerResponse', {
+                        status: 'Playing',
+                        url: url
+                    });
+                })
+                .catch(error => {
+                    displayResponse('audioPlayerResponse', {
+                        status: 'ERROR',
+                        error: error.message
+                    });
+                });
         }
     </script>
 </body>

@@ -26,7 +26,44 @@
 
 ---
 
-## 환경 설정
+## 최초 1회 AWS EC2 배포 환경 설정
+
+```bash
+# 시스템 업데이트
+sudo apt update && sudo apt upgrade -y
+
+# Node.js 20.x 설치
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# PostgreSQL 설치
+sudo apt install -y postgresql postgresql-contrib
+
+# Git 설치
+sudo apt install -y git
+
+# 버전 확인
+node --version
+npm --version
+psql --version
+
+# PostgreSQL 서비스 시작
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+```
+
+```bash
+# 서브모듈까지 클론
+git clone --recursive https://github.com/prayslaks/mve-servers.git
+
+# 통합 리포지토리로 이동
+cd mve-servers
+
+# 서브모듈까지 초기화
+git submodule update --init --recursive
+```
+
+### 환경 변수 설정
 
 두 서버는 다음 환경 설정을 **반드시 동일하게** 유지해야 합니다:
 
@@ -35,7 +72,7 @@
 
 SMTP 설정이나 파일 서버 설정 등은 각자 역할에 따라서 구분됩니다.
 
-### 로그인 서버 예시
+#### 로그인 서버 예시
 ```env
 # 로그인 서버 포트 번호
 PORT=3000
@@ -58,7 +95,7 @@ EMAIL_USER=your_naver_email@naver.com
 EMAIL_PASSWORD=your_naver_app_password
 ```
 
-### 리소스 서버 예시
+#### 리소스 서버 예시 (S3)
 
 ```env
 # 서버 포트
@@ -83,6 +120,8 @@ JWT_SECRET=your_secret_key_here_make_it_long_and_random
 FILE_SERVER_PATH=./files
 ```
 
+#### 리소스 서버 예시 (로컬)
+
 ```env
 # 서버 포트
 PORT=3001
@@ -106,86 +145,41 @@ FILE_SERVER_PATH=./files
 
 **⚠️ 주의**: 자세한 내용은 각 서브모듈 리포지토리의 README.md와 .env.example을 참고해 설정합니다.
 
----
-
-## 빠른 시작
-
-### 1. 저장소 클론 (서브모듈 포함)
+```bash
+# 최초 1회 이후에는 쉘로 하드 셋업 가능
+chmod +x aws-ubuntu-hardsetup-servers.sh
+./aws-ubuntu-hardsetup-servers.sh
+```
 
 ```bash
-git clone --recursive <repository-url>
-cd MVE
+# 통합 서버 기본 설정 (밑 코드 참고)
+sudo nano /etc/nginx/sites-enabled/default
+
+# 너무 긴 EC2 도메인을 위해 server_names_hash_bucket_size 수정
+sudo nano /etc/nginx/nginx.conf
+
+# 기본 설정만 남기고 이전 로그인 서버 설정 제거
+sudo rm /etc/nginx/sites-enabled/mve-login-server
+
+# 정상 제거 확인
+ls -la /etc/nginx/sites-enabled/
+
+# 설정 활성화
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
-기존 저장소에서 서브모듈 초기화:
 ```bash
-git submodule update --init --recursive
-```
+# 기본 설정 이후에 nginx 재구동
+sudo nginx -t && sudo systemctl reload nginx
 
-### 2. 데이터베이스 설정
-
-```bash
-# PostgreSQL에서 데이터베이스 생성
-psql -U postgres -c "CREATE DATABASE logindb;"
-
-# Login Server 테이블 생성
-psql -U postgres -d logindb -f mve-login-server/init.sql
-
-# Resource Server 테이블 생성
-psql -U postgres -d logindb -f mve-resource-server/init.sql
-```
-
-### 3. 환경 변수 설정
-
-각 서버 디렉토리에 `.env` 파일 생성 (위의 공유 의존성 참고)
-
-### 4. 서버 실행
-
-**Windows 로컬 개발 환경:**
-```powershell
-# 의존성 설치
-windows-local-setup-servers.bat
-
-# 서버 실행
-windows-local-start-servers.bat
-```
-
-**AWS EC2 Ubuntu 프로덕션 환경:**
-```bash
-# 의존성 설치 (git pull + npm install)
-chmod +x aws-ubuntu-setup-servers.sh
-./aws-ubuntu-setup-servers.sh
-
-# 서버 실행 (PM2)
-chmod +x aws-ubuntu-start-servers.sh
-./aws-ubuntu-start-servers.sh
-```
-
-**수동 실행:**
-```bash
-# 개발 환경
-cd mve-login-server && node server.js
-cd mve-resource-server && node server.js
-
-# 프로덕션 환경 (PM2)
-pm2 start mve-login-server/server.js --name mve-login-server
-pm2 start mve-resource-server/server.js --name mve-resource-server
-pm2 save
-```
-
-### 5. API 테스트
-
-브라우저에서 API를 테스트할 수 있는 웹페이지를 제공합니다.
-
----
-
-## Nginx 리버스 프록시 설정
-
-두 서버를 하나의 도메인으로 서비스:
-
-```nginx
+# 밑 내용을 sudo nano /etc/nginx/sites-enabled/default로 작성
 server {
     listen 80;
+
+    # 용량 제한 100MB
+    client_max_body_size 100M;
+
+    # EC2 도메인 또는 퍼블릭 IP
     server_name your-domain.com;
 
     # Resource Server API (먼저 정의)
@@ -216,7 +210,50 @@ server {
 }
 ```
 
-> **⚠️ 주의**: `/api/audio`와 `/api/models`를 먼저 정의해야 합니다.
+```bash
+# psql 콘솔 활성화
+sudo -u postgres psql
+
+# psql 콘솔 명령어 =========================
+CREATE DATABASE logindb;
+ALTER USER postgres WITH PASSWORD '새로운비밀번호';
+# psql 콘솔 명령어 =========================
+
+# peer 인증에서 비밀번호로 전환
+sudo nano /etc/postgresql/*/main/pg_hba.conf
+
+# psql 재구동
+sudo systemctl restart postgresql
+
+# PostgreSQL에서 데이터베이스 생성
+psql -U postgres -c "CREATE DATABASE logindb;"
+
+# Login Server 테이블 생성
+psql -U postgres -d logindb -f mve-login-server/init.sql
+
+# Resource Server 테이블 생성
+psql -U postgres -d logindb -f mve-resource-server/init.sql
+```
+
+```bash
+# 서버 배포 쉘 스크립트 실행
+./aws-ubuntu-start-servers.sh
+```
+
+---
+
+## 최초 1회 AWS EC2 배포 이후 업데이트
+
+```bash
+# 한번 하드 셋업된 이후부터는 소프트 셋업으로도 충분히 최신 버전 유지
+./aws-ubuntu-setup-servers.sh
+
+# 만약 예기치 못한 문제가 발생했다면 하드 셋업으로 완전히 초기화 (환경 설정 파일은 유지)
+./aws-ubuntu-hardsetup-servers.sh
+
+# 서버 재구동
+pm2 restart all
+```
 
 ---
 
@@ -229,6 +266,44 @@ server {
 | SSH | 22 | 내 IP | 서버 관리용 |
 | Custom TCP | 3000 | 내 IP | 개발용 Login Server |
 | Custom TCP | 3001 | 내 IP | 개발용 Resource Server |
+
+---
+
+## Windows 로컬 개발 환경 설정
+
+Node.js, PostgreSQL, Git이 설치되어 있어야 합니다.
+
+```powershell
+# 서브모듈까지 클론
+git clone --recursive https://github.com/prayslaks/mve-servers.git
+
+# 통합 리포지토리로 이동
+cd mve-servers
+
+# 서브모듈까지 초기화
+git submodule update --init --recursive
+```
+
+환경 변수 설정은 위의 [환경 변수 설정](#환경-변수-설정) 섹션을 참고하세요. (리소스 서버는 로컬 예시 사용)
+
+```powershell
+# PostgreSQL에서 데이터베이스 생성
+psql -U postgres -c "CREATE DATABASE logindb;"
+
+# Login Server 테이블 생성
+psql -U postgres -d logindb -f mve-login-server/init.sql
+
+# Resource Server 테이블 생성
+psql -U postgres -d logindb -f mve-resource-server/init.sql
+```
+
+```powershell
+# 의존성 설치 (git fetch/pull + 서브모듈 업데이트 + npm install)
+windows-local-setup-servers.bat
+
+# 서버 실행
+windows-local-start-servers.bat
+```
 
 ---
 

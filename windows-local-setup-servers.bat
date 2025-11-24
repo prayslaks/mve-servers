@@ -2,13 +2,36 @@
 cd /d "%~dp0"
 
 echo ========================================
-echo Setup MVE servers...
+echo Setup MVE servers on Windows...
+echo ========================================
 
-start "Login Server Setup" /d "%~dp0mve-login-server" setup-login-server.bat
-start "Resource Server Setup" /d "%~dp0mve-resource-server" setup-resource-server.bat
+echo.
+echo [1/5] Fetching latest changes...
+git fetch --all
 
-echo All server Setup commands have been sent.
-echo This window will be shut down in 10 sec...
+echo.
+echo [2/5] Pulling latest changes...
+git pull
+
+echo.
+echo [3/5] Updating git submodules...
+git submodule update --init --recursive
+
+echo.
+echo [4/5] Installing Login Server dependencies...
+cd mve-login-server
+call npm install
+cd ..
+
+echo.
+echo [5/5] Installing Resource Server dependencies...
+cd mve-resource-server
+call npm install
+cd ..
+
+echo.
+echo ========================================
+echo Setup complete!
 echo ========================================
 
 timeout /t 10
