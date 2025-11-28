@@ -120,29 +120,6 @@ JWT_SECRET=your_secret_key_here_make_it_long_and_random
 FILE_SERVER_PATH=./files
 ```
 
-#### 리소스 서버 예시 (로컬)
-
-```env
-# 서버 포트
-PORT=3001
-
-# 데이터베이스 환경 설정 (로그인 서버와 동일해야 함)
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_NAME=mve_login_db
-
-# 스토리지 환경 설정 (값이 's3'가 아니라면 자동으로 로컬 스토리지로 간주)
-STORAGE_TYPE=local
-
-# 최소 32자 이상의 랜덤 JWT 비밀 키 (로그인 서버의 JWT 키와 동일해야 함)
-JWT_SECRET=your_secret_key_here_make_it_long_and_random
-
-# 로컬 스토리지 경로 (음원 및 모델링 파일이 저장된 파일 서버)
-FILE_SERVER_PATH=./files
-```
-
 **⚠️ 주의**: 자세한 내용은 각 서브모듈 리포지토리의 README.md와 .env.example을 참고해 설정합니다.
 
 ```bash
@@ -257,18 +234,6 @@ pm2 restart all
 
 ---
 
-## AWS EC2 보안 그룹 설정
-
-| 유형 | 포트 | 소스 | 설명 |
-|------|------|------|------|
-| HTTPS | 443 | 0.0.0.0/0 | 프로덕션 서비스 |
-| HTTP | 80 | 0.0.0.0/0 | 프로덕션 서비스 |
-| SSH | 22 | 내 IP | 서버 관리용 |
-| Custom TCP | 3000 | 내 IP | 개발용 Login Server |
-| Custom TCP | 3001 | 내 IP | 개발용 Resource Server |
-
----
-
 ## Windows 로컬 개발 환경 설정
 
 Node.js, PostgreSQL, Git이 설치되어 있어야 합니다.
@@ -284,7 +249,58 @@ cd mve-servers
 git submodule update --init --recursive
 ```
 
-환경 변수 설정은 위의 [환경 변수 설정](#환경-변수-설정) 섹션을 참고하세요. (리소스 서버는 로컬 예시 사용)
+#### 로그인 서버 예시 (로컬과 AWS EC2 모두 동일)
+```env
+# 로그인 서버 포트 번호
+PORT=3000
+
+# 데이터베이스 환경설정
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=mve_login_db
+
+# 최소 32자 이상의 랜덤 JWT 비밀 키 (리소스 서버의 JWT 키와 동일해야 함)
+JWT_SECRET=your_secret_key_here_make_it_long_and_random
+
+# 인증 번호 전송 이메일 SMTP 환경설정
+EMAIL_HOST=smtp.naver.com
+EMAIL_PORT=587
+EMAIL_SECURE=false
+EMAIL_USER=your_naver_email@naver.com
+EMAIL_PASSWORD=your_naver_app_password
+```
+
+#### 리소스 서버 예시 (로컬)
+
+```env
+# 서버 포트
+PORT=3001
+
+# 데이터베이스 환경 설정 (로그인 서버와 동일해야 함)
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=mve_login_db
+
+# 스토리지 환경 설정 (값이 's3'가 아니라면 자동으로 로컬 스토리지로 간주)
+STORAGE_TYPE=local
+
+# 최소 32자 이상의 랜덤 JWT 비밀 키 (로그인 서버의 JWT 키와 동일해야 함)
+JWT_SECRET=your_secret_key_here_make_it_long_and_random
+
+# 로컬 스토리지 경로 (음원 및 모델링 파일이 저장된 파일 서버)
+FILE_SERVER_PATH=./files
+```
+
+```powershell
+# psql 콘솔 명령어 =========================
+CREATE DATABASE logindb;
+ALTER USER postgres WITH PASSWORD '새로운비밀번호';
+# psql 콘솔 명령어 =========================
+```
 
 ```powershell
 # PostgreSQL에서 데이터베이스 생성
@@ -304,6 +320,18 @@ windows-local-setup-servers.bat
 # 서버 실행
 windows-local-start-servers.bat
 ```
+
+---
+
+## AWS EC2 보안 그룹 설정
+
+| 유형 | 포트 | 소스 | 설명 |
+|------|------|------|------|
+| HTTPS | 443 | 0.0.0.0/0 | 프로덕션 서비스 |
+| HTTP | 80 | 0.0.0.0/0 | 프로덕션 서비스 |
+| SSH | 22 | 내 IP | 서버 관리용 |
+| Custom TCP | 3000 | 내 IP | 개발용 Login Server |
+| Custom TCP | 3001 | 내 IP | 개발용 Resource Server |
 
 ---
 

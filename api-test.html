@@ -32,6 +32,42 @@
         .flex > * { flex: 1; }
         .server-config { display: flex; gap: 10px; margin-bottom: 15px; }
         .server-config input { flex: 1; }
+        .example-box {
+            background: #e8f5e9;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid #a5d6a7;
+            position: relative;
+        }
+        .example-box:hover {
+            background: #c8e6c9;
+        }
+        .example-box::before {
+            content: '📋 Click to copy: ';
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .example-box.copied::after {
+            content: '✓ Copied!';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #2e7d32;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            animation: fadeOut 2s forwards;
+        }
+        @keyframes fadeOut {
+            0%, 50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -243,18 +279,6 @@
                 <div class="response" id="streamAudioResponse"></div>
             </div>
 
-            <!-- Audio Player -->
-            <div class="api-group">
-                <h3>Audio Player - Play from Stream URL</h3>
-                <div class="input-group">
-                    <label>Stream URL</label>
-                    <input type="text" id="audioStreamUrl" placeholder="Enter stream URL or presigned URL">
-                </div>
-                <button class="btn-secondary" onclick="playStreamUrl()">Play</button>
-                <audio id="audioPlayer" controls style="width: 100%; margin-top: 10px; display: none;"></audio>
-                <div class="response" id="audioPlayerResponse"></div>
-            </div>
-
             <!-- Model List -->
             <div class="api-group">
                 <h3>GET /api/models/list - Get Model List (JWT Required)</h3>
@@ -317,6 +341,314 @@
                 </div>
                 <button class="btn-danger" onclick="deleteModel()">Delete Model</button>
                 <div class="response" id="deleteModelResponse"></div>
+            </div>
+        </div>
+
+        <!-- Concert APIs -->
+        <div class="section">
+            <h2>Concert APIs (콘서트 기능)</h2>
+
+            <!-- Create Concert -->
+            <div class="api-group">
+                <h3>POST /api/concert/create - Create Concert (JWT Required)</h3>
+                <div class="input-group">
+                    <label>콘서트 이름</label>
+                    <input type="text" id="concertName" placeholder="My First Concert">
+                </div>
+                <div class="input-group">
+                    <label>최대 관객 수 (Optional)</label>
+                    <input type="number" id="concertMaxAudience" placeholder="100">
+                </div>
+                <div class="input-group">
+                    <label>Songs JSON (Optional)</label>
+                    <textarea id="concertSongsJson" placeholder='[{"songNum":1,"audioId":1,"streamUrl":"/api/audio/stream/1","stageDirectionId":10}]'></textarea>
+                    <div class="example-box" onclick="copyToInput('concertSongsJson', '[{&quot;songNum&quot;:1,&quot;audioId&quot;:1,&quot;streamUrl&quot;:&quot;/api/audio/stream/1&quot;,&quot;stageDirectionId&quot;:10}]', this)">[{"songNum":1,"audioId":1,"streamUrl":"/api/audio/stream/1","stageDirectionId":10}]</div>
+                </div>
+                <div class="input-group">
+                    <label>Accessories JSON (Optional)</label>
+                    <textarea id="concertAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
+                    <div class="example-box" onclick="copyToInput('concertAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                </div>
+                <button class="btn-primary" onclick="createConcert()">Create Concert</button>
+                <div class="response" id="createConcertResponse"></div>
+            </div>
+
+            <!-- List Concerts -->
+            <div class="api-group">
+                <h3>GET /api/concert/list - List Active Concerts (JWT Required)</h3>
+                <button class="btn-primary" onclick="listConcerts()">List Concerts</button>
+                <div class="response" id="listConcertsResponse"></div>
+            </div>
+
+            <!-- Join Concert -->
+            <div class="api-group">
+                <h3>POST /api/concert/:roomId/join - Join Concert (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Room ID</label>
+                    <input type="text" id="joinRoomId" placeholder="concert_1234567890_abc123">
+                </div>
+                <button class="btn-secondary" onclick="joinConcert()">Join Concert</button>
+                <div class="response" id="joinConcertResponse"></div>
+            </div>
+
+            <!-- Get Concert Info -->
+            <div class="api-group">
+                <h3>GET /api/concert/:roomId/info - Get Concert Info (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Room ID</label>
+                    <input type="text" id="infoRoomId" placeholder="concert_1234567890_abc123">
+                </div>
+                <button class="btn-primary" onclick="getConcertInfo()">Get Concert Info</button>
+                <div class="response" id="concertInfoResponse"></div>
+            </div>
+
+            <!-- Add Song -->
+            <div class="api-group">
+                <h3>POST /api/concert/:roomId/songs/add - Add Song (JWT Required, Studio Only)</h3>
+                <div class="input-group">
+                    <label>Room ID</label>
+                    <input type="text" id="addSongRoomId" placeholder="concert_1234567890_abc123">
+                </div>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Song Number</label>
+                        <input type="number" id="addSongNum" placeholder="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Audio ID</label>
+                        <input type="number" id="addSongAudioId" placeholder="1">
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Stream URL</label>
+                        <input type="text" id="addSongStreamUrl" placeholder="/api/audio/stream/1">
+                    </div>
+                    <div class="input-group">
+                        <label>Stage Direction ID</label>
+                        <input type="number" id="addSongStageDirectionId" placeholder="10">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="addSong()">Add Song</button>
+                <div class="response" id="addSongResponse"></div>
+            </div>
+
+            <!-- Remove Song -->
+            <div class="api-group">
+                <h3>DELETE /api/concert/:roomId/songs/:songNum - Remove Song (JWT Required, Studio Only)</h3>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="removeSongRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <div class="input-group">
+                        <label>Song Number</label>
+                        <input type="number" id="removeSongNum" placeholder="1">
+                    </div>
+                </div>
+                <button class="btn-danger" onclick="removeSong()">Remove Song</button>
+                <div class="response" id="removeSongResponse"></div>
+            </div>
+
+            <!-- Change Song -->
+            <div class="api-group">
+                <h3>POST /api/concert/:roomId/songs/change - Change Current Song (JWT Required, Studio Only)</h3>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="changeSongRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <div class="input-group">
+                        <label>Song Number</label>
+                        <input type="number" id="changeSongNum" placeholder="2">
+                    </div>
+                </div>
+                <button class="btn-warning" onclick="changeSong()">Change Song</button>
+                <div class="response" id="changeSongResponse"></div>
+            </div>
+
+            <!-- Get Current Song -->
+            <div class="api-group">
+                <h3>GET /api/concert/:roomId/current-song - Get Current Song (JWT Required, Audience)</h3>
+                <div class="input-group">
+                    <label>Room ID</label>
+                    <input type="text" id="currentSongRoomId" placeholder="concert_1234567890_abc123">
+                </div>
+                <button class="btn-secondary" onclick="getCurrentSong()">Get Current Song</button>
+                <div class="response" id="currentSongResponse"></div>
+            </div>
+
+            <!-- Add Accessory -->
+            <div class="api-group">
+                <h3>POST /api/concert/:roomId/accessories/add - Add Accessory (JWT Required, Studio Only)</h3>
+                <div class="input-group">
+                    <label>Room ID</label>
+                    <input type="text" id="addAccessoryRoomId" placeholder="concert_1234567890_abc123">
+                </div>
+                <div class="input-group">
+                    <label>Socket Name</label>
+                    <input type="text" id="addAccessorySocketName" placeholder="head_socket">
+                </div>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Location X</label>
+                        <input type="number" id="addAccessoryLocationX" placeholder="0" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Location Y</label>
+                        <input type="number" id="addAccessoryLocationY" placeholder="0" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Location Z</label>
+                        <input type="number" id="addAccessoryLocationZ" placeholder="10" step="0.01">
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Rotation Pitch</label>
+                        <input type="number" id="addAccessoryRotationPitch" placeholder="0" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Rotation Yaw</label>
+                        <input type="number" id="addAccessoryRotationYaw" placeholder="0" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Rotation Roll</label>
+                        <input type="number" id="addAccessoryRotationRoll" placeholder="0" step="0.01">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Model URL</label>
+                    <input type="text" id="addAccessoryModelUrl" placeholder="/models/hat.glb">
+                </div>
+                <button class="btn-primary" onclick="addAccessory()">Add Accessory</button>
+                <div class="response" id="addAccessoryResponse"></div>
+            </div>
+
+            <!-- Remove Accessory -->
+            <div class="api-group">
+                <h3>DELETE /api/concert/:roomId/accessories/:index - Remove Accessory (JWT Required, Studio Only)</h3>
+                <div class="flex">
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="removeAccessoryRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <div class="input-group">
+                        <label>Accessory Index</label>
+                        <input type="number" id="removeAccessoryIndex" placeholder="0">
+                    </div>
+                </div>
+                <button class="btn-danger" onclick="removeAccessory()">Remove Accessory</button>
+                <div class="response" id="removeAccessoryResponse"></div>
+            </div>
+
+            <!-- Update Accessories -->
+            <div class="api-group">
+                <h3>PUT /api/concert/:roomId/accessories - Replace All Accessories (JWT Required, Studio Only)</h3>
+                <div class="input-group">
+                    <label>Room ID</label>
+                    <input type="text" id="updateAccessoriesRoomId" placeholder="concert_1234567890_abc123">
+                </div>
+                <div class="input-group">
+                    <label>Accessories JSON Array</label>
+                    <textarea id="updateAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
+                    <div class="example-box" onclick="copyToInput('updateAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                </div>
+                <button class="btn-warning" onclick="updateAccessories()">Update All Accessories</button>
+                <div class="response" id="updateAccessoriesResponse"></div>
+            </div>
+        </div>
+
+        <!-- Accessory Preset APIs -->
+        <div class="section">
+            <h2>Accessory Preset APIs (액세서리 프리셋)</h2>
+
+            <!-- Save Preset -->
+            <div class="api-group">
+                <h3>POST /api/accessory-presets/save - Save Preset (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Preset Name</label>
+                    <input type="text" id="presetName" placeholder="My Preset">
+                </div>
+                <div class="input-group">
+                    <label>Description (Optional)</label>
+                    <input type="text" id="presetDescription" placeholder="A cool accessory preset">
+                </div>
+                <div class="input-group">
+                    <label>Accessories JSON Array</label>
+                    <textarea id="presetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
+                    <div class="example-box" onclick="copyToInput('presetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                </div>
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="presetIsPublic"> Public Preset
+                    </label>
+                </div>
+                <button class="btn-primary" onclick="savePreset()">Save Preset</button>
+                <div class="response" id="savePresetResponse"></div>
+            </div>
+
+            <!-- List Presets -->
+            <div class="api-group">
+                <h3>GET /api/accessory-presets/list - List Presets (JWT Required)</h3>
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="includePublicPresets"> Include Public Presets
+                    </label>
+                </div>
+                <button class="btn-primary" onclick="listPresets()">List Presets</button>
+                <div class="response" id="listPresetsResponse"></div>
+            </div>
+
+            <!-- Get Preset -->
+            <div class="api-group">
+                <h3>GET /api/accessory-presets/:id - Get Preset (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Preset ID</label>
+                    <input type="number" id="getPresetId" placeholder="1">
+                </div>
+                <button class="btn-primary" onclick="getPreset()">Get Preset</button>
+                <div class="response" id="getPresetResponse"></div>
+            </div>
+
+            <!-- Update Preset -->
+            <div class="api-group">
+                <h3>PUT /api/accessory-presets/:id - Update Preset (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Preset ID</label>
+                    <input type="number" id="updatePresetId" placeholder="1">
+                </div>
+                <div class="input-group">
+                    <label>Preset Name (Optional)</label>
+                    <input type="text" id="updatePresetName" placeholder="Updated Preset">
+                </div>
+                <div class="input-group">
+                    <label>Description (Optional)</label>
+                    <input type="text" id="updatePresetDescription" placeholder="Updated description">
+                </div>
+                <div class="input-group">
+                    <label>Accessories JSON Array (Optional)</label>
+                    <textarea id="updatePresetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
+                    <div class="example-box" onclick="copyToInput('updatePresetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                </div>
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="updatePresetIsPublic"> Public Preset
+                    </label>
+                </div>
+                <button class="btn-warning" onclick="updatePreset()">Update Preset</button>
+                <div class="response" id="updatePresetResponse"></div>
+            </div>
+
+            <!-- Delete Preset -->
+            <div class="api-group">
+                <h3>DELETE /api/accessory-presets/:id - Delete Preset (JWT Required)</h3>
+                <div class="input-group">
+                    <label>Preset ID</label>
+                    <input type="number" id="deletePresetId" placeholder="1">
+                </div>
+                <button class="btn-danger" onclick="deletePreset()">Delete Preset</button>
+                <div class="response" id="deletePresetResponse"></div>
             </div>
         </div>
     </div>
@@ -646,30 +978,358 @@
             }
         }
 
-        function playStreamUrl() {
-            const url = document.getElementById('audioStreamUrl').value;
-            const player = document.getElementById('audioPlayer');
+        // Concert APIs
+        async function createConcert() {
+            const concertName = document.getElementById('concertName').value;
+            const maxAudience = document.getElementById('concertMaxAudience').value;
+            const songsJson = document.getElementById('concertSongsJson').value;
+            const accessoriesJson = document.getElementById('concertAccessoriesJson').value;
 
-            if (!url) {
-                displayResponse('audioPlayerResponse', { error: 'Please enter a stream URL' });
+            if (!concertName) {
+                displayResponse('createConcertResponse', { error: 'concertName is required' });
                 return;
             }
 
-            player.src = url;
-            player.style.display = 'block';
-            player.play()
-                .then(() => {
-                    displayResponse('audioPlayerResponse', {
-                        status: 'Playing',
-                        url: url
-                    });
+            const body = {
+                concertName
+            };
+
+            if (maxAudience) {
+                body.maxAudience = parseInt(maxAudience);
+            }
+
+            if (songsJson) {
+                try {
+                    body.songs = JSON.parse(songsJson);
+                } catch (e) {
+                    displayResponse('createConcertResponse', { error: 'Invalid JSON in songs field' });
+                    return;
+                }
+            }
+
+            if (accessoriesJson) {
+                try {
+                    body.accessories = JSON.parse(accessoriesJson);
+                } catch (e) {
+                    displayResponse('createConcertResponse', { error: 'Invalid JSON in accessories field' });
+                    return;
+                }
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/create`, {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+            displayResponse('createConcertResponse', response);
+        }
+
+        async function listConcerts() {
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/list`);
+            displayResponse('listConcertsResponse', response);
+        }
+
+        async function joinConcert() {
+            const roomId = document.getElementById('joinRoomId').value;
+            if (!roomId) {
+                displayResponse('joinConcertResponse', { error: 'Room ID is required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/join`, {
+                method: 'POST'
+            });
+            displayResponse('joinConcertResponse', response);
+        }
+
+        async function getConcertInfo() {
+            const roomId = document.getElementById('infoRoomId').value;
+            if (!roomId) {
+                displayResponse('concertInfoResponse', { error: 'Room ID is required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/info`);
+            displayResponse('concertInfoResponse', response);
+        }
+
+        async function addSong() {
+            const roomId = document.getElementById('addSongRoomId').value;
+            const songNum = document.getElementById('addSongNum').value;
+            const audioId = document.getElementById('addSongAudioId').value;
+            const streamUrl = document.getElementById('addSongStreamUrl').value;
+            const stageDirectionId = document.getElementById('addSongStageDirectionId').value;
+
+            if (!roomId || !songNum || !audioId || !streamUrl || !stageDirectionId) {
+                displayResponse('addSongResponse', { error: 'All fields are required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/songs/add`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    songNum: parseInt(songNum),
+                    audioId: parseInt(audioId),
+                    streamUrl,
+                    stageDirectionId: parseInt(stageDirectionId)
                 })
-                .catch(error => {
-                    displayResponse('audioPlayerResponse', {
-                        status: 'ERROR',
-                        error: error.message
-                    });
-                });
+            });
+            displayResponse('addSongResponse', response);
+        }
+
+        async function removeSong() {
+            const roomId = document.getElementById('removeSongRoomId').value;
+            const songNum = document.getElementById('removeSongNum').value;
+
+            if (!roomId || !songNum) {
+                displayResponse('removeSongResponse', { error: 'Room ID and Song Number are required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/songs/${songNum}`, {
+                method: 'DELETE'
+            });
+            displayResponse('removeSongResponse', response);
+        }
+
+        async function changeSong() {
+            const roomId = document.getElementById('changeSongRoomId').value;
+            const songNum = document.getElementById('changeSongNum').value;
+
+            if (!roomId || !songNum) {
+                displayResponse('changeSongResponse', { error: 'Room ID and Song Number are required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/songs/change`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    songNum: parseInt(songNum)
+                })
+            });
+            displayResponse('changeSongResponse', response);
+        }
+
+        async function getCurrentSong() {
+            const roomId = document.getElementById('currentSongRoomId').value;
+
+            if (!roomId) {
+                displayResponse('currentSongResponse', { error: 'Room ID is required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/current-song`);
+            displayResponse('currentSongResponse', response);
+        }
+
+        async function addAccessory() {
+            const roomId = document.getElementById('addAccessoryRoomId').value;
+            const socketName = document.getElementById('addAccessorySocketName').value;
+            const locationX = document.getElementById('addAccessoryLocationX').value;
+            const locationY = document.getElementById('addAccessoryLocationY').value;
+            const locationZ = document.getElementById('addAccessoryLocationZ').value;
+            const rotationPitch = document.getElementById('addAccessoryRotationPitch').value;
+            const rotationYaw = document.getElementById('addAccessoryRotationYaw').value;
+            const rotationRoll = document.getElementById('addAccessoryRotationRoll').value;
+            const modelUrl = document.getElementById('addAccessoryModelUrl').value;
+
+            if (!roomId || !socketName || !modelUrl) {
+                displayResponse('addAccessoryResponse', { error: 'Room ID, Socket Name, and Model URL are required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/accessories/add`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    socketName,
+                    relativeLocation: {
+                        x: parseFloat(locationX) || 0,
+                        y: parseFloat(locationY) || 0,
+                        z: parseFloat(locationZ) || 0
+                    },
+                    relativeRotation: {
+                        pitch: parseFloat(rotationPitch) || 0,
+                        yaw: parseFloat(rotationYaw) || 0,
+                        roll: parseFloat(rotationRoll) || 0
+                    },
+                    modelUrl
+                })
+            });
+            displayResponse('addAccessoryResponse', response);
+        }
+
+        async function removeAccessory() {
+            const roomId = document.getElementById('removeAccessoryRoomId').value;
+            const index = document.getElementById('removeAccessoryIndex').value;
+
+            if (!roomId || index === '') {
+                displayResponse('removeAccessoryResponse', { error: 'Room ID and Index are required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/accessories/${index}`, {
+                method: 'DELETE'
+            });
+            displayResponse('removeAccessoryResponse', response);
+        }
+
+        async function updateAccessories() {
+            const roomId = document.getElementById('updateAccessoriesRoomId').value;
+            const accessoriesJson = document.getElementById('updateAccessoriesJson').value;
+
+            if (!roomId) {
+                displayResponse('updateAccessoriesResponse', { error: 'Room ID is required' });
+                return;
+            }
+
+            let accessories;
+            try {
+                accessories = JSON.parse(accessoriesJson);
+                if (!Array.isArray(accessories)) {
+                    displayResponse('updateAccessoriesResponse', { error: 'Accessories must be a JSON array' });
+                    return;
+                }
+            } catch (e) {
+                displayResponse('updateAccessoriesResponse', { error: 'Invalid JSON in accessories field' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/accessories`, {
+                method: 'PUT',
+                body: JSON.stringify({ accessories })
+            });
+            displayResponse('updateAccessoriesResponse', response);
+        }
+
+        // Accessory Preset APIs
+        async function savePreset() {
+            const presetName = document.getElementById('presetName').value;
+            const description = document.getElementById('presetDescription').value;
+            const accessoriesJson = document.getElementById('presetAccessoriesJson').value;
+            const isPublic = document.getElementById('presetIsPublic').checked;
+
+            if (!presetName || !accessoriesJson) {
+                displayResponse('savePresetResponse', { error: 'Preset Name and Accessories are required' });
+                return;
+            }
+
+            let accessories;
+            try {
+                accessories = JSON.parse(accessoriesJson);
+                if (!Array.isArray(accessories)) {
+                    displayResponse('savePresetResponse', { error: 'Accessories must be a JSON array' });
+                    return;
+                }
+            } catch (e) {
+                displayResponse('savePresetResponse', { error: 'Invalid JSON in accessories field' });
+                return;
+            }
+
+            const body = {
+                presetName,
+                accessories,
+                isPublic
+            };
+
+            if (description) {
+                body.description = description;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/accessory-presets/save`, {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+            displayResponse('savePresetResponse', response);
+        }
+
+        async function listPresets() {
+            const includePublic = document.getElementById('includePublicPresets').checked;
+            const url = `${getResourceServerUrl()}/api/accessory-presets/list${includePublic ? '?includePublic=true' : ''}`;
+
+            const response = await apiCall(url);
+            displayResponse('listPresetsResponse', response);
+        }
+
+        async function getPreset() {
+            const id = document.getElementById('getPresetId').value;
+
+            if (!id) {
+                displayResponse('getPresetResponse', { error: 'Preset ID is required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/accessory-presets/${id}`);
+            displayResponse('getPresetResponse', response);
+        }
+
+        async function updatePreset() {
+            const id = document.getElementById('updatePresetId').value;
+            const presetName = document.getElementById('updatePresetName').value;
+            const description = document.getElementById('updatePresetDescription').value;
+            const accessoriesJson = document.getElementById('updatePresetAccessoriesJson').value;
+            const isPublic = document.getElementById('updatePresetIsPublic').checked;
+
+            if (!id) {
+                displayResponse('updatePresetResponse', { error: 'Preset ID is required' });
+                return;
+            }
+
+            const body = {};
+
+            if (presetName) body.presetName = presetName;
+            if (description) body.description = description;
+            if (isPublic !== undefined) body.isPublic = isPublic;
+
+            if (accessoriesJson) {
+                try {
+                    const accessories = JSON.parse(accessoriesJson);
+                    if (!Array.isArray(accessories)) {
+                        displayResponse('updatePresetResponse', { error: 'Accessories must be a JSON array' });
+                        return;
+                    }
+                    body.accessories = accessories;
+                } catch (e) {
+                    displayResponse('updatePresetResponse', { error: 'Invalid JSON in accessories field' });
+                    return;
+                }
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/accessory-presets/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(body)
+            });
+            displayResponse('updatePresetResponse', response);
+        }
+
+        async function deletePreset() {
+            const id = document.getElementById('deletePresetId').value;
+
+            if (!id) {
+                displayResponse('deletePresetResponse', { error: 'Preset ID is required' });
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete preset ${id}?`)) {
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/accessory-presets/${id}`, {
+                method: 'DELETE'
+            });
+            displayResponse('deletePresetResponse', response);
+        }
+
+        // Copy example to input field
+        function copyToInput(inputId, jsonText, element) {
+            const textarea = document.getElementById(inputId);
+            // HTML entities를 실제 문자로 변환
+            const decodedText = jsonText.replace(/&quot;/g, '"');
+            textarea.value = decodedText;
+
+            // 복사 완료 애니메이션
+            element.classList.add('copied');
+            setTimeout(() => {
+                element.classList.remove('copied');
+            }, 2000);
         }
     </script>
 </body>
