@@ -9,6 +9,16 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
         .container { max-width: 1200px; margin: 0 auto; }
         h1 { color: #333; margin-bottom: 20px; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .tab { padding: 12px 24px; background: #f0f0f0; border: none; cursor: pointer; font-size: 14px; font-weight: 500; color: #666; border-radius: 8px 8px 0 0; transition: all 0.3s; }
+        .tab:hover { background: #e0e0e0; }
+        .tab.active { background: white; color: #4CAF50; border-bottom: 2px solid #4CAF50; margin-bottom: -2px; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .section h2 { margin-top: 0; color: #444; border-bottom: 2px solid #4CAF50; padding-bottom: 10px; }
         .api-group { margin-bottom: 15px; padding: 15px; background: #f9f9f9; border-radius: 4px; }
@@ -74,7 +84,7 @@
     <div class="container">
         <h1>MVE API Tester</h1>
 
-        <!-- Server Configuration -->
+        <!-- 서버 구성 -->
         <div class="section">
             <h2>Server Configuration</h2>
             <div class="server-config">
@@ -93,562 +103,638 @@
             </div>
         </div>
 
-        <!-- Login Server APIs -->
-        <div class="section">
-            <h2>Login Server APIs</h2>
+        <!-- 탭 -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('auth')">인증 (Authentication)</button>
+            <button class="tab" onclick="switchTab('audio')">음원 (Audio)</button>
+            <button class="tab" onclick="switchTab('model-register')">액세서리 모델 생성</button>
+            <button class="tab" onclick="switchTab('model-manage')">액세서리 모델 관리</button>
+            <button class="tab" onclick="switchTab('studio-concert')">스튜디오 콘서트 세션</button>
+            <button class="tab" onclick="switchTab('audience-concert')">오디언스 콘서트 세션</button>
+        </div>
 
-            <!-- Health Check -->
-            <div class="api-group">
-                <h3>GET /health - Health Check</h3>
-                <button class="btn-primary" onclick="testLoginHealth()">Test Health</button>
-                <div class="response" id="healthResponse"></div>
-            </div>
+        <!-- 탭 콘텐츠: 인증 -->
+        <div id="tab-auth" class="tab-content active">
+            <div class="section">
+                <h2>인증 API</h2>
 
-            <!-- Check Email -->
-            <div class="api-group">
-                <h3>POST /api/auth/check-email - Check Email Availability</h3>
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="checkEmail" placeholder="test@example.com">
+                <!-- Health Check -->
+                <div class="api-group">
+                    <h3>GET /health - Health Check</h3>
+                    <button class="btn-primary" onclick="testLoginHealth()">Test Health</button>
+                    <div class="response" id="healthResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="checkEmail()">Check Email</button>
-                <div class="response" id="checkEmailResponse"></div>
-            </div>
 
-            <!-- Send Verification -->
-            <div class="api-group">
-                <h3>POST /api/auth/send-verification - Send Verification Code</h3>
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="verifyEmail" placeholder="test@example.com">
-                </div>
-                <button class="btn-warning" onclick="sendVerification()">Send Code</button>
-                <div class="response" id="sendVerificationResponse"></div>
-            </div>
-
-            <!-- Verify Code -->
-            <div class="api-group">
-                <h3>POST /api/auth/verify-code - Verify Code</h3>
-                <div class="flex">
+                <!-- Check Email -->
+                <div class="api-group">
+                    <h3>POST /api/auth/check-email - Check Email Availability</h3>
                     <div class="input-group">
                         <label>Email</label>
-                        <input type="email" id="verifyCodeEmail" placeholder="test@example.com">
+                        <input type="email" id="checkEmail" placeholder="test@example.com">
                     </div>
-                    <div class="input-group">
-                        <label>Code (6 digits)</label>
-                        <input type="text" id="verifyCode" placeholder="123456">
-                    </div>
+                    <button class="btn-primary" onclick="checkEmail()">Check Email</button>
+                    <div class="response" id="checkEmailResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="verifyCode()">Verify Code</button>
-                <div class="response" id="verifyCodeResponse"></div>
-            </div>
 
-            <!-- Signup -->
-            <div class="api-group">
-                <h3>POST /api/auth/signup - Sign Up</h3>
-                <div class="flex">
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="signupUsername" placeholder="testuser">
-                    </div>
+                <!-- Send Verification -->
+                <div class="api-group">
+                    <h3>POST /api/auth/send-verification - Send Verification Code</h3>
                     <div class="input-group">
                         <label>Email</label>
-                        <input type="email" id="signupEmail" placeholder="test@example.com">
+                        <input type="email" id="verifyEmail" placeholder="test@example.com">
                     </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" id="signupPassword" placeholder="password123">
-                    </div>
+                    <button class="btn-warning" onclick="sendVerification()">Send Code</button>
+                    <div class="response" id="sendVerificationResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="signup()">Sign Up</button>
-                <div class="response" id="signupResponse"></div>
-            </div>
 
-            <!-- Login -->
-            <div class="api-group">
-                <h3>POST /api/auth/login - Login</h3>
-                <div class="flex">
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="loginUsername" placeholder="testuser">
+                <!-- Verify Code -->
+                <div class="api-group">
+                    <h3>POST /api/auth/verify-code - Verify Code</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="verifyCodeEmail" placeholder="test@example.com">
+                        </div>
+                        <div class="input-group">
+                            <label>Code (6 digits)</label>
+                            <input type="text" id="verifyCode" placeholder="123456">
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" id="loginPassword" placeholder="password123">
+                    <button class="btn-primary" onclick="verifyCode()">Verify Code</button>
+                    <div class="response" id="verifyCodeResponse"></div>
+                </div>
+
+                <!-- Signup -->
+                <div class="api-group">
+                    <h3>POST /api/auth/signup - Sign Up</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Username</label>
+                            <input type="text" id="signupUsername" placeholder="testuser">
+                        </div>
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="signupEmail" placeholder="test@example.com">
+                        </div>
+                        <div class="input-group">
+                            <label>Password</label>
+                            <input type="password" id="signupPassword" placeholder="password123">
+                        </div>
                     </div>
+                    <button class="btn-primary" onclick="signup()">Sign Up</button>
+                    <div class="response" id="signupResponse"></div>
                 </div>
-                <button class="btn-secondary" onclick="login()">Login & Save Token</button>
-                <div class="response" id="loginResponse"></div>
-            </div>
 
-            <!-- Profile -->
-            <div class="api-group">
-                <h3>GET /api/auth/profile - Get Profile (JWT Required)</h3>
-                <button class="btn-primary" onclick="getProfile()">Get Profile</button>
-                <div class="response" id="profileResponse"></div>
-            </div>
-
-            <!-- Logout -->
-            <div class="api-group">
-                <h3>POST /api/auth/logout - Logout (JWT Required)</h3>
-                <button class="btn-warning" onclick="logout()">Logout</button>
-                <div class="response" id="logoutResponse"></div>
-            </div>
-
-            <!-- Withdraw -->
-            <div class="api-group">
-                <h3>DELETE /api/auth/withdraw - Delete Account (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Password (현재 비밀번호 확인)</label>
-                    <input type="password" id="withdrawPassword" placeholder="current password">
+                <!-- Login -->
+                <div class="api-group">
+                    <h3>POST /api/auth/login - Login</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Username</label>
+                            <input type="text" id="loginUsername" placeholder="testuser">
+                        </div>
+                        <div class="input-group">
+                            <label>Password</label>
+                            <input type="password" id="loginPassword" placeholder="password123">
+                        </div>
+                    </div>
+                    <button class="btn-secondary" onclick="login()">Login & Save Token</button>
+                    <div class="response" id="loginResponse"></div>
                 </div>
-                <button class="btn-danger" onclick="withdraw()">Delete Account</button>
-                <div class="response" id="withdrawResponse"></div>
+
+                <!-- Profile -->
+                <div class="api-group">
+                    <h3>GET /api/auth/profile - Get Profile (JWT Required)</h3>
+                    <button class="btn-primary" onclick="getProfile()">Get Profile</button>
+                    <div class="response" id="profileResponse"></div>
+                </div>
+
+                <!-- Logout -->
+                <div class="api-group">
+                    <h3>POST /api/auth/logout - Logout (JWT Required)</h3>
+                    <button class="btn-warning" onclick="logout()">Logout</button>
+                    <div class="response" id="logoutResponse"></div>
+                </div>
+
+                <!-- Withdraw -->
+                <div class="api-group">
+                    <h3>DELETE /api/auth/withdraw - Delete Account (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Password (현재 비밀번호 확인)</label>
+                        <input type="password" id="withdrawPassword" placeholder="current password">
+                    </div>
+                    <button class="btn-danger" onclick="withdraw()">Delete Account</button>
+                    <div class="response" id="withdrawResponse"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Resource Server APIs -->
-        <div class="section">
-            <h2>Resource Server APIs</h2>
+        <!-- 탭 콘텐츠: 음원 -->
+        <div id="tab-audio" class="tab-content">
+            <div class="section">
+                <h2>음원 API</h2>
 
-            <!-- Health Check -->
-            <div class="api-group">
-                <h3>GET /health - Health Check</h3>
-                <button class="btn-primary" onclick="testResourceHealth()">Test Health</button>
-                <div class="response" id="resourceHealthResponse"></div>
-            </div>
-
-            <!-- Audio List -->
-            <div class="api-group">
-                <h3>GET /api/audio/list - Get Audio List (JWT Required)</h3>
-                <button class="btn-primary" onclick="getAudioList()">Get Audio List</button>
-                <div class="response" id="audioListResponse"></div>
-            </div>
-
-            <!-- Audio Info -->
-            <div class="api-group">
-                <h3>GET /api/audio/:id - Get Audio Info (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Audio ID</label>
-                    <input type="number" id="audioId" placeholder="Enter Audio ID">
+                <!-- Health Check -->
+                <div class="api-group">
+                    <h3>GET /health - Health Check</h3>
+                    <button class="btn-primary" onclick="testResourceHealth()">Test Health</button>
+                    <div class="response" id="resourceHealthResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="getAudioInfo()">Get Audio Info</button>
-                <div class="response" id="audioInfoResponse"></div>
-            </div>
 
-            <!-- Audio Search -->
-            <div class="api-group">
-                <h3>GET /api/audio/search/:query - Search Audio (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Search Query</label>
-                    <input type="text" id="audioSearchQuery" placeholder="song name">
+                <!-- Audio List -->
+                <div class="api-group">
+                    <h3>GET /api/audio/list - Get Audio List (JWT Required)</h3>
+                    <button class="btn-primary" onclick="getAudioList()">Get Audio List</button>
+                    <div class="response" id="audioListResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="searchAudio()">Search Audio</button>
-                <div class="response" id="audioSearchResponse"></div>
-            </div>
 
-            <!-- Audio Upload -->
-            <div class="api-group">
-                <h3>POST /api/audio/upload - Upload Audio (JWT Required)</h3>
-                <div class="flex">
+                <!-- Audio Info -->
+                <div class="api-group">
+                    <h3>GET /api/audio/:id - Get Audio Info (JWT Required)</h3>
                     <div class="input-group">
-                        <label>Title</label>
-                        <input type="text" id="uploadTitle" placeholder="Song Title">
+                        <label>Audio ID</label>
+                        <input type="number" id="audioId" placeholder="Enter Audio ID">
+                    </div>
+                    <button class="btn-primary" onclick="getAudioInfo()">Get Audio Info</button>
+                    <div class="response" id="audioInfoResponse"></div>
+                </div>
+
+                <!-- Audio Search -->
+                <div class="api-group">
+                    <h3>GET /api/audio/search/:query - Search Audio (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Search Query</label>
+                        <input type="text" id="audioSearchQuery" placeholder="song name">
+                    </div>
+                    <button class="btn-primary" onclick="searchAudio()">Search Audio</button>
+                    <div class="response" id="audioSearchResponse"></div>
+                </div>
+
+                <!-- Audio Upload -->
+                <div class="api-group">
+                    <h3>POST /api/audio/upload - Upload Audio (JWT Required)</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Title</label>
+                            <input type="text" id="uploadTitle" placeholder="Song Title">
+                        </div>
+                        <div class="input-group">
+                            <label>Artist</label>
+                            <input type="text" id="uploadArtist" placeholder="Artist Name">
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label>Artist</label>
-                        <input type="text" id="uploadArtist" placeholder="Artist Name">
+                        <label>Audio File (AAC, M4A, MP3, WAV)</label>
+                        <input type="file" id="uploadAudioFile" accept=".aac,.m4a,.mp3,.wav">
                     </div>
+                    <button class="btn-primary" onclick="uploadAudio()">Upload Audio</button>
+                    <div class="response" id="uploadAudioResponse"></div>
                 </div>
-                <div class="input-group">
-                    <label>Audio File (AAC, M4A, MP3, WAV)</label>
-                    <input type="file" id="uploadAudioFile" accept=".aac,.m4a,.mp3,.wav">
+
+                <!-- Audio Stream -->
+                <div class="api-group">
+                    <h3>GET /api/audio/stream/:id - Stream Audio (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Audio ID</label>
+                        <input type="number" id="streamAudioId" placeholder="Enter Audio ID">
+                    </div>
+                    <button class="btn-secondary" onclick="streamAudio()">Get Stream URL</button>
+                    <div class="response" id="streamAudioResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="uploadAudio()">Upload Audio</button>
-                <div class="response" id="uploadAudioResponse"></div>
             </div>
+        </div>
 
-            <!-- Audio Stream -->
-            <div class="api-group">
-                <h3>GET /api/audio/stream/:id - Stream Audio (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Audio ID</label>
-                    <input type="number" id="streamAudioId" placeholder="Enter Audio ID">
-                </div>
-                <button class="btn-secondary" onclick="streamAudio()">Get Stream URL</button>
-                <div class="response" id="streamAudioResponse"></div>
-            </div>
+        <!-- 탭 콘텐츠: 엑세서리 모델 생성 -->
+        <div id="tab-model-register" class="tab-content">
+            <div class="section">
+                <h2>액세서리 모델 생성 API</h2>
 
-            <!-- Model List -->
-            <div class="api-group">
-                <h3>GET /api/models/list - Get Model List (JWT Required)</h3>
-                <button class="btn-primary" onclick="getModelList()">Get Model List</button>
-                <div class="response" id="modelListResponse"></div>
-            </div>
-
-            <!-- Model Info -->
-            <div class="api-group">
-                <h3>GET /api/models/:id - Get Model Info (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Model ID</label>
-                    <input type="number" id="modelId" placeholder="1">
-                </div>
-                <button class="btn-primary" onclick="getModelInfo()">Get Model Info</button>
-                <div class="response" id="modelInfoResponse"></div>
-            </div>
-
-            <!-- Register Model -->
-            <div class="api-group">
-                <h3>POST /api/models/register - Register Model (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Model Data (JSON)</label>
-                    <textarea id="registerModelData">{
+                <!-- 모델 등록 -->
+                <div class="api-group">
+                    <h3>POST /api/models/register - Register Model (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Model Data (JSON)</label>
+                        <textarea id="registerModelData">{
     "name": "My Model",
     "file_path": "/models/my-model.glb",
     "description": "Test model"
 }</textarea>
+                    </div>
+                    <button class="btn-primary" onclick="registerModel()">Register Model</button>
+                    <div class="response" id="registerModelResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="registerModel()">Register Model</button>
-                <div class="response" id="registerModelResponse"></div>
-            </div>
 
-            <!-- Update Model -->
-            <div class="api-group">
-                <h3>PUT /api/models/:id - Update Model (JWT Required)</h3>
-                <div class="flex">
+                <!-- 모델 리스트 -->
+                <div class="api-group">
+                    <h3>GET /api/models/list - Get Model List (JWT Required)</h3>
+                    <button class="btn-primary" onclick="getModelList()">Get Model List</button>
+                    <div class="response" id="modelListResponse"></div>
+                </div>
+
+                <!-- 모델 정보-->
+                <div class="api-group">
+                    <h3>GET /api/models/:id - Get Model Info (JWT Required)</h3>
                     <div class="input-group">
                         <label>Model ID</label>
-                        <input type="number" id="updateModelId" placeholder="1">
+                        <input type="number" id="modelId" placeholder="1">
                     </div>
+                    <button class="btn-primary" onclick="getModelInfo()">Get Model Info</button>
+                    <div class="response" id="modelInfoResponse"></div>
                 </div>
-                <div class="input-group">
-                    <label>Update Data (JSON)</label>
-                    <textarea id="updateModelData">{
+
+                <!-- 모델 정보 업데이트 -->
+                <div class="api-group">
+                    <h3>PUT /api/models/:id - Update Model (JWT Required)</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Model ID</label>
+                            <input type="number" id="updateModelId" placeholder="1">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Update Data (JSON)</label>
+                        <textarea id="updateModelData">{
     "name": "Updated Model",
     "description": "Updated description"
 }</textarea>
+                    </div>
+                    <button class="btn-warning" onclick="updateModel()">Update Model</button>
+                    <div class="response" id="updateModelResponse"></div>
                 </div>
-                <button class="btn-warning" onclick="updateModel()">Update Model</button>
-                <div class="response" id="updateModelResponse"></div>
-            </div>
 
-            <!-- Delete Model -->
-            <div class="api-group">
-                <h3>DELETE /api/models/:id - Delete Model (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Model ID</label>
-                    <input type="number" id="deleteModelId" placeholder="1">
+                <!-- 모델 삭제 -->
+                <div class="api-group">
+                    <h3>DELETE /api/models/:id - Delete Model (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Model ID</label>
+                        <input type="number" id="deleteModelId" placeholder="1">
+                    </div>
+                    <button class="btn-danger" onclick="deleteModel()">Delete Model</button>
+                    <div class="response" id="deleteModelResponse"></div>
                 </div>
-                <button class="btn-danger" onclick="deleteModel()">Delete Model</button>
-                <div class="response" id="deleteModelResponse"></div>
             </div>
         </div>
 
-        <!-- Concert APIs -->
-        <div class="section">
-            <h2>Concert APIs (콘서트 기능)</h2>
+        <!-- 탭 콘텐츠: 엑세서리 모델 관리 -->
+        <div id="tab-model-manage" class="tab-content">
+            <div class="section">
+                <h2>액세서리 모델 관리 API</h2>
 
-            <!-- Create Concert -->
-            <div class="api-group">
-                <h3>POST /api/concert/create - Create Concert (JWT Required)</h3>
-                <div class="input-group">
-                    <label>콘서트 이름</label>
-                    <input type="text" id="concertName" placeholder="My First Concert">
+                <!-- 엑세서리 프리셋 리스트 -->
+                <div class="api-group">
+                    <h3>GET /api/accessory-presets/list - List Presets (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="includePublicPresets"> Include Public Presets
+                        </label>
+                    </div>
+                    <button class="btn-primary" onclick="listPresets()">List Presets</button>
+                    <div class="response" id="listPresetsResponse"></div>
                 </div>
-                <div class="input-group">
-                    <label>최대 관객 수 (Optional)</label>
-                    <input type="number" id="concertMaxAudience" placeholder="100">
-                </div>
-                <div class="input-group">
-                    <label>Songs JSON (Optional)</label>
-                    <textarea id="concertSongsJson" placeholder='[{"songNum":1,"audioId":1,"streamUrl":"/api/audio/stream/1","stageDirectionId":10}]'></textarea>
-                    <div class="example-box" onclick="copyToInput('concertSongsJson', '[{&quot;songNum&quot;:1,&quot;audioId&quot;:1,&quot;streamUrl&quot;:&quot;/api/audio/stream/1&quot;,&quot;stageDirectionId&quot;:10}]', this)">[{"songNum":1,"audioId":1,"streamUrl":"/api/audio/stream/1","stageDirectionId":10}]</div>
-                </div>
-                <div class="input-group">
-                    <label>Accessories JSON (Optional)</label>
-                    <textarea id="concertAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
-                    <div class="example-box" onclick="copyToInput('concertAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
-                </div>
-                <button class="btn-primary" onclick="createConcert()">Create Concert</button>
-                <div class="response" id="createConcertResponse"></div>
-            </div>
 
-            <!-- List Concerts -->
-            <div class="api-group">
-                <h3>GET /api/concert/list - List Active Concerts (JWT Required)</h3>
-                <button class="btn-primary" onclick="listConcerts()">List Concerts</button>
-                <div class="response" id="listConcertsResponse"></div>
-            </div>
+                <!-- 엑세서리 프리셋 저장 -->
+                <div class="api-group">
+                    <h3>POST /api/accessory-presets/save - Save Preset (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Preset Name</label>
+                        <input type="text" id="presetName" placeholder="My Preset">
+                    </div>
+                    <div class="input-group">
+                        <label>Description (Optional)</label>
+                        <input type="text" id="presetDescription" placeholder="A cool accessory preset">
+                    </div>
+                    <div class="input-group">
+                        <label>Accessories JSON Array</label>
+                        <textarea id="presetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
+                        <div class="example-box" onclick="copyToInput('presetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="presetIsPublic"> Public Preset
+                        </label>
+                    </div>
+                    <button class="btn-primary" onclick="savePreset()">Save Preset</button>
+                    <div class="response" id="savePresetResponse"></div>
+                </div>
 
-            <!-- Join Concert -->
-            <div class="api-group">
-                <h3>POST /api/concert/:roomId/join - Join Concert (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Room ID</label>
-                    <input type="text" id="joinRoomId" placeholder="concert_1234567890_abc123">
+                <!-- 엑세서리 프리셋 로드 -->
+                <div class="api-group">
+                    <h3>GET /api/accessory-presets/:id - Get Preset (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Preset ID</label>
+                        <input type="number" id="getPresetId" placeholder="1">
+                    </div>
+                    <button class="btn-primary" onclick="getPreset()">Get Preset</button>
+                    <div class="response" id="getPresetResponse"></div>
                 </div>
-                <button class="btn-secondary" onclick="joinConcert()">Join Concert</button>
-                <div class="response" id="joinConcertResponse"></div>
-            </div>
 
-            <!-- Get Concert Info -->
-            <div class="api-group">
-                <h3>GET /api/concert/:roomId/info - Get Concert Info (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Room ID</label>
-                    <input type="text" id="infoRoomId" placeholder="concert_1234567890_abc123">
+                <!-- 엑세서리 프리셋 업데이트 -->
+                <div class="api-group">
+                    <h3>PUT /api/accessory-presets/:id - Update Preset (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Preset ID</label>
+                        <input type="number" id="updatePresetId" placeholder="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Preset Name (Optional)</label>
+                        <input type="text" id="updatePresetName" placeholder="Updated Preset">
+                    </div>
+                    <div class="input-group">
+                        <label>Description (Optional)</label>
+                        <input type="text" id="updatePresetDescription" placeholder="Updated description">
+                    </div>
+                    <div class="input-group">
+                        <label>Accessories JSON Array (Optional)</label>
+                        <textarea id="updatePresetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
+                        <div class="example-box" onclick="copyToInput('updatePresetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="updatePresetIsPublic"> Public Preset
+                        </label>
+                    </div>
+                    <button class="btn-warning" onclick="updatePreset()">Update Preset</button>
+                    <div class="response" id="updatePresetResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="getConcertInfo()">Get Concert Info</button>
-                <div class="response" id="concertInfoResponse"></div>
-            </div>
 
-            <!-- Add Song -->
-            <div class="api-group">
-                <h3>POST /api/concert/:roomId/songs/add - Add Song (JWT Required, Studio Only)</h3>
-                <div class="input-group">
-                    <label>Room ID</label>
-                    <input type="text" id="addSongRoomId" placeholder="concert_1234567890_abc123">
+                <!-- 엑세서리 프리셋 삭제 -->
+                <div class="api-group">
+                    <h3>DELETE /api/accessory-presets/:id - Delete Preset (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Preset ID</label>
+                        <input type="number" id="deletePresetId" placeholder="1">
+                    </div>
+                    <button class="btn-danger" onclick="deletePreset()">Delete Preset</button>
+                    <div class="response" id="deletePresetResponse"></div>
                 </div>
-                <div class="flex">
-                    <div class="input-group">
-                        <label>Song Number</label>
-                        <input type="number" id="addSongNum" placeholder="1">
-                    </div>
-                    <div class="input-group">
-                        <label>Audio ID</label>
-                        <input type="number" id="addSongAudioId" placeholder="1">
-                    </div>
-                </div>
-                <div class="flex">
-                    <div class="input-group">
-                        <label>Stream URL</label>
-                        <input type="text" id="addSongStreamUrl" placeholder="/api/audio/stream/1">
-                    </div>
-                    <div class="input-group">
-                        <label>Stage Direction ID</label>
-                        <input type="number" id="addSongStageDirectionId" placeholder="10">
-                    </div>
-                </div>
-                <button class="btn-primary" onclick="addSong()">Add Song</button>
-                <div class="response" id="addSongResponse"></div>
-            </div>
-
-            <!-- Remove Song -->
-            <div class="api-group">
-                <h3>DELETE /api/concert/:roomId/songs/:songNum - Remove Song (JWT Required, Studio Only)</h3>
-                <div class="flex">
-                    <div class="input-group">
-                        <label>Room ID</label>
-                        <input type="text" id="removeSongRoomId" placeholder="concert_1234567890_abc123">
-                    </div>
-                    <div class="input-group">
-                        <label>Song Number</label>
-                        <input type="number" id="removeSongNum" placeholder="1">
-                    </div>
-                </div>
-                <button class="btn-danger" onclick="removeSong()">Remove Song</button>
-                <div class="response" id="removeSongResponse"></div>
-            </div>
-
-            <!-- Change Song -->
-            <div class="api-group">
-                <h3>POST /api/concert/:roomId/songs/change - Change Current Song (JWT Required, Studio Only)</h3>
-                <div class="flex">
-                    <div class="input-group">
-                        <label>Room ID</label>
-                        <input type="text" id="changeSongRoomId" placeholder="concert_1234567890_abc123">
-                    </div>
-                    <div class="input-group">
-                        <label>Song Number</label>
-                        <input type="number" id="changeSongNum" placeholder="2">
-                    </div>
-                </div>
-                <button class="btn-warning" onclick="changeSong()">Change Song</button>
-                <div class="response" id="changeSongResponse"></div>
-            </div>
-
-            <!-- Get Current Song -->
-            <div class="api-group">
-                <h3>GET /api/concert/:roomId/current-song - Get Current Song (JWT Required, Audience)</h3>
-                <div class="input-group">
-                    <label>Room ID</label>
-                    <input type="text" id="currentSongRoomId" placeholder="concert_1234567890_abc123">
-                </div>
-                <button class="btn-secondary" onclick="getCurrentSong()">Get Current Song</button>
-                <div class="response" id="currentSongResponse"></div>
-            </div>
-
-            <!-- Add Accessory -->
-            <div class="api-group">
-                <h3>POST /api/concert/:roomId/accessories/add - Add Accessory (JWT Required, Studio Only)</h3>
-                <div class="input-group">
-                    <label>Room ID</label>
-                    <input type="text" id="addAccessoryRoomId" placeholder="concert_1234567890_abc123">
-                </div>
-                <div class="input-group">
-                    <label>Socket Name</label>
-                    <input type="text" id="addAccessorySocketName" placeholder="head_socket">
-                </div>
-                <div class="flex">
-                    <div class="input-group">
-                        <label>Location X</label>
-                        <input type="number" id="addAccessoryLocationX" placeholder="0" step="0.01">
-                    </div>
-                    <div class="input-group">
-                        <label>Location Y</label>
-                        <input type="number" id="addAccessoryLocationY" placeholder="0" step="0.01">
-                    </div>
-                    <div class="input-group">
-                        <label>Location Z</label>
-                        <input type="number" id="addAccessoryLocationZ" placeholder="10" step="0.01">
-                    </div>
-                </div>
-                <div class="flex">
-                    <div class="input-group">
-                        <label>Rotation Pitch</label>
-                        <input type="number" id="addAccessoryRotationPitch" placeholder="0" step="0.01">
-                    </div>
-                    <div class="input-group">
-                        <label>Rotation Yaw</label>
-                        <input type="number" id="addAccessoryRotationYaw" placeholder="0" step="0.01">
-                    </div>
-                    <div class="input-group">
-                        <label>Rotation Roll</label>
-                        <input type="number" id="addAccessoryRotationRoll" placeholder="0" step="0.01">
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>Model URL</label>
-                    <input type="text" id="addAccessoryModelUrl" placeholder="/models/hat.glb">
-                </div>
-                <button class="btn-primary" onclick="addAccessory()">Add Accessory</button>
-                <div class="response" id="addAccessoryResponse"></div>
-            </div>
-
-            <!-- Remove Accessory -->
-            <div class="api-group">
-                <h3>DELETE /api/concert/:roomId/accessories/:index - Remove Accessory (JWT Required, Studio Only)</h3>
-                <div class="flex">
-                    <div class="input-group">
-                        <label>Room ID</label>
-                        <input type="text" id="removeAccessoryRoomId" placeholder="concert_1234567890_abc123">
-                    </div>
-                    <div class="input-group">
-                        <label>Accessory Index</label>
-                        <input type="number" id="removeAccessoryIndex" placeholder="0">
-                    </div>
-                </div>
-                <button class="btn-danger" onclick="removeAccessory()">Remove Accessory</button>
-                <div class="response" id="removeAccessoryResponse"></div>
-            </div>
-
-            <!-- Update Accessories -->
-            <div class="api-group">
-                <h3>PUT /api/concert/:roomId/accessories - Replace All Accessories (JWT Required, Studio Only)</h3>
-                <div class="input-group">
-                    <label>Room ID</label>
-                    <input type="text" id="updateAccessoriesRoomId" placeholder="concert_1234567890_abc123">
-                </div>
-                <div class="input-group">
-                    <label>Accessories JSON Array</label>
-                    <textarea id="updateAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
-                    <div class="example-box" onclick="copyToInput('updateAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
-                </div>
-                <button class="btn-warning" onclick="updateAccessories()">Update All Accessories</button>
-                <div class="response" id="updateAccessoriesResponse"></div>
             </div>
         </div>
 
-        <!-- Accessory Preset APIs -->
-        <div class="section">
-            <h2>Accessory Preset APIs (액세서리 프리셋)</h2>
+        <!-- 탭 콘텐츠: 스튜디오 콘서트 세션 -->
+        <div id="tab-studio-concert" class="tab-content">
+            <div class="section">
+                <h2>스튜디오 콘서트 세션 API</h2>
 
-            <!-- Save Preset -->
-            <div class="api-group">
-                <h3>POST /api/accessory-presets/save - Save Preset (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Preset Name</label>
-                    <input type="text" id="presetName" placeholder="My Preset">
+                <!-- Create Concert -->
+                <div class="api-group">
+                    <h3>POST /api/concert/create - Create Concert (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>콘서트 이름</label>
+                        <input type="text" id="concertName" placeholder="My First Concert">
+                    </div>
+                    <div class="input-group">
+                        <label>최대 관객 수 (Optional)</label>
+                        <input type="number" id="concertMaxAudience" placeholder="100">
+                    </div>
+                    <div class="input-group">
+                        <label>Songs JSON (Optional)</label>
+                        <textarea id="concertSongsJson" placeholder='[{"songNum":1,"audioId":1,"streamUrl":"/api/audio/stream/1","stageDirectionId":10}]'></textarea>
+                        <div class="example-box" onclick="copyToInput('concertSongsJson', '[{&quot;songNum&quot;:1,&quot;audioId&quot;:1,&quot;streamUrl&quot;:&quot;/api/audio/stream/1&quot;,&quot;stageDirectionId&quot;:10}]', this)">[{"songNum":1,"audioId":1,"streamUrl":"/api/audio/stream/1","stageDirectionId":10}]</div>
+                    </div>
+                    <div class="input-group">
+                        <label>Accessories JSON (Optional)</label>
+                        <textarea id="concertAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
+                        <div class="example-box" onclick="copyToInput('concertAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                    </div>
+                    <button class="btn-primary" onclick="createConcert()">Create Concert</button>
+                    <div class="response" id="createConcertResponse"></div>
                 </div>
-                <div class="input-group">
-                    <label>Description (Optional)</label>
-                    <input type="text" id="presetDescription" placeholder="A cool accessory preset">
+
+                <!-- Update Listen Server -->
+                <div class="api-group">
+                    <h3>POST /api/concert/:roomId/listen-server - Update Listen Server (JWT Required, Studio Only)</h3>
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="listenServerRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Local IP (필수)</label>
+                            <input type="text" id="listenServerLocalIP" placeholder="192.168.0.100">
+                        </div>
+                        <div class="input-group">
+                            <label>Port (필수)</label>
+                            <input type="number" id="listenServerPort" placeholder="7777">
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Public IP (선택)</label>
+                            <input type="text" id="listenServerPublicIP" placeholder="203.0.113.50">
+                        </div>
+                        <div class="input-group">
+                            <label>Public Port (선택)</label>
+                            <input type="number" id="listenServerPublicPort" placeholder="7777">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="updateListenServer()">Update Listen Server</button>
+                    <div class="response" id="updateListenServerResponse"></div>
                 </div>
-                <div class="input-group">
-                    <label>Accessories JSON Array</label>
-                    <textarea id="presetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
-                    <div class="example-box" onclick="copyToInput('presetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+
+                <!-- Toggle Concert Open -->
+                <div class="api-group">
+                    <h3>POST /api/concert/:roomId/toggleConcertOpen - Make Client Join Listen Server (JWT Required, Studio Only)</h3>
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="toggleConcertOpenRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <button class="btn-primary" onclick="toggleConcertOpen(true)">Open Concert</button>
+                    <button class="btn-primary" onclick="toggleConcertOpen(false)">Close Concert</button>
+                    <div class="response" id="toggleConcertOpenResponse"></div>
                 </div>
-                <div class="input-group">
-                    <label>
-                        <input type="checkbox" id="presetIsPublic"> Public Preset
-                    </label>
+
+                <!-- Add Song -->
+                <div class="api-group">
+                    <h3>POST /api/concert/:roomId/songs/add - Add Song (JWT Required, Studio Only)</h3>
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="addSongRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Song Number</label>
+                            <input type="number" id="addSongNum" placeholder="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Audio ID</label>
+                            <input type="number" id="addSongAudioId" placeholder="1">
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Stream URL</label>
+                            <input type="text" id="addSongStreamUrl" placeholder="/api/audio/stream/1">
+                        </div>
+                        <div class="input-group">
+                            <label>Stage Direction ID</label>
+                            <input type="number" id="addSongStageDirectionId" placeholder="10">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="addSong()">Add Song</button>
+                    <div class="response" id="addSongResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="savePreset()">Save Preset</button>
-                <div class="response" id="savePresetResponse"></div>
+
+                <!-- Remove Song -->
+                <div class="api-group">
+                    <h3>DELETE /api/concert/:roomId/songs/:songNum - Remove Song (JWT Required, Studio Only)</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Room ID</label>
+                            <input type="text" id="removeSongRoomId" placeholder="concert_1234567890_abc123">
+                        </div>
+                        <div class="input-group">
+                            <label>Song Number</label>
+                            <input type="number" id="removeSongNum" placeholder="1">
+                        </div>
+                    </div>
+                    <button class="btn-danger" onclick="removeSong()">Remove Song</button>
+                    <div class="response" id="removeSongResponse"></div>
+                </div>
+
+                <!-- Change Song -->
+                <div class="api-group">
+                    <h3>POST /api/concert/:roomId/songs/change - Change Current Song (JWT Required, Studio Only)</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Room ID</label>
+                            <input type="text" id="changeSongRoomId" placeholder="concert_1234567890_abc123">
+                        </div>
+                        <div class="input-group">
+                            <label>Song Number</label>
+                            <input type="number" id="changeSongNum" placeholder="2">
+                        </div>
+                    </div>
+                    <button class="btn-warning" onclick="changeSong()">Change Song</button>
+                    <div class="response" id="changeSongResponse"></div>
+                </div>
+
+                <!-- Add Accessory -->
+                <div class="api-group">
+                    <h3>POST /api/concert/:roomId/accessories/add - Add Accessory (JWT Required, Studio Only)</h3>
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="addAccessoryRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <div class="input-group">
+                        <label>Socket Name</label>
+                        <input type="text" id="addAccessorySocketName" placeholder="head_socket">
+                    </div>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Location X</label>
+                            <input type="number" id="addAccessoryLocationX" placeholder="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label>Location Y</label>
+                            <input type="number" id="addAccessoryLocationY" placeholder="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label>Location Z</label>
+                            <input type="number" id="addAccessoryLocationZ" placeholder="10" step="0.01">
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Rotation Pitch</label>
+                            <input type="number" id="addAccessoryRotationPitch" placeholder="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label>Rotation Yaw</label>
+                            <input type="number" id="addAccessoryRotationYaw" placeholder="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label>Rotation Roll</label>
+                            <input type="number" id="addAccessoryRotationRoll" placeholder="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Model URL</label>
+                        <input type="text" id="addAccessoryModelUrl" placeholder="/models/hat.glb">
+                    </div>
+                    <button class="btn-primary" onclick="addAccessory()">Add Accessory</button>
+                    <div class="response" id="addAccessoryResponse"></div>
+                </div>
+
+                <!-- Remove Accessory -->
+                <div class="api-group">
+                    <h3>DELETE /api/concert/:roomId/accessories/:index - Remove Accessory (JWT Required, Studio Only)</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Room ID</label>
+                            <input type="text" id="removeAccessoryRoomId" placeholder="concert_1234567890_abc123">
+                        </div>
+                        <div class="input-group">
+                            <label>Accessory Index</label>
+                            <input type="number" id="removeAccessoryIndex" placeholder="0">
+                        </div>
+                    </div>
+                    <button class="btn-danger" onclick="removeAccessory()">Remove Accessory</button>
+                    <div class="response" id="removeAccessoryResponse"></div>
+                </div>
+
+                <!-- Update Accessories -->
+                <div class="api-group">
+                    <h3>PUT /api/concert/:roomId/accessories - Replace All Accessories (JWT Required, Studio Only)</h3>
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="updateAccessoriesRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <div class="input-group">
+                        <label>Accessories JSON Array</label>
+                        <textarea id="updateAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
+                        <div class="example-box" onclick="copyToInput('updateAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                    </div>
+                    <button class="btn-warning" onclick="updateAccessories()">Update All Accessories</button>
+                    <div class="response" id="updateAccessoriesResponse"></div>
+                </div>
             </div>
+        </div>
+    
+        <!-- 탭 콘텐츠: 오디언스 콘서트 세션 -->
+        <div id="tab-audience-concert" class="tab-content">
+            <div class="section">
+                <h2>오디언스 콘서트 세션 API</h2>
 
-            <!-- List Presets -->
-            <div class="api-group">
-                <h3>GET /api/accessory-presets/list - List Presets (JWT Required)</h3>
-                <div class="input-group">
-                    <label>
-                        <input type="checkbox" id="includePublicPresets"> Include Public Presets
-                    </label>
+                <!-- List Concerts -->
+                <div class="api-group">
+                    <h3>GET /api/concert/list - List Active Concerts (JWT Required)</h3>
+                    <button class="btn-primary" onclick="listConcerts()">List Concerts</button>
+                    <div class="response" id="listConcertsResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="listPresets()">List Presets</button>
-                <div class="response" id="listPresetsResponse"></div>
-            </div>
 
-            <!-- Get Preset -->
-            <div class="api-group">
-                <h3>GET /api/accessory-presets/:id - Get Preset (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Preset ID</label>
-                    <input type="number" id="getPresetId" placeholder="1">
+                <!-- Get Concert Info -->
+                <div class="api-group">
+                    <h3>GET /api/concert/:roomId/info - Get Concert Info (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="infoRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <button class="btn-primary" onclick="getConcertInfo()">Get Concert Info</button>
+                    <div class="response" id="concertInfoResponse"></div>
                 </div>
-                <button class="btn-primary" onclick="getPreset()">Get Preset</button>
-                <div class="response" id="getPresetResponse"></div>
-            </div>
 
-            <!-- Update Preset -->
-            <div class="api-group">
-                <h3>PUT /api/accessory-presets/:id - Update Preset (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Preset ID</label>
-                    <input type="number" id="updatePresetId" placeholder="1">
+                <!-- Join Concert -->
+                <div class="api-group">
+                    <h3>POST /api/concert/:roomId/join - Join Concert (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="joinRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <button class="btn-secondary" onclick="joinConcert()">Join Concert</button>
+                    <div class="response" id="joinConcertResponse"></div>
                 </div>
-                <div class="input-group">
-                    <label>Preset Name (Optional)</label>
-                    <input type="text" id="updatePresetName" placeholder="Updated Preset">
-                </div>
-                <div class="input-group">
-                    <label>Description (Optional)</label>
-                    <input type="text" id="updatePresetDescription" placeholder="Updated description">
-                </div>
-                <div class="input-group">
-                    <label>Accessories JSON Array (Optional)</label>
-                    <textarea id="updatePresetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
-                    <div class="example-box" onclick="copyToInput('updatePresetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
-                </div>
-                <div class="input-group">
-                    <label>
-                        <input type="checkbox" id="updatePresetIsPublic"> Public Preset
-                    </label>
-                </div>
-                <button class="btn-warning" onclick="updatePreset()">Update Preset</button>
-                <div class="response" id="updatePresetResponse"></div>
-            </div>
 
-            <!-- Delete Preset -->
-            <div class="api-group">
-                <h3>DELETE /api/accessory-presets/:id - Delete Preset (JWT Required)</h3>
-                <div class="input-group">
-                    <label>Preset ID</label>
-                    <input type="number" id="deletePresetId" placeholder="1">
+                <!-- Get Current Song -->
+                <div class="api-group">
+                    <h3>GET /api/concert/:roomId/current-song - Get Current Song (JWT Required, Audience)</h3>
+                    <div class="input-group">
+                        <label>Room ID</label>
+                        <input type="text" id="currentSongRoomId" placeholder="concert_1234567890_abc123">
+                    </div>
+                    <button class="btn-secondary" onclick="getCurrentSong()">Get Current Song</button>
+                    <div class="response" id="currentSongResponse"></div>
                 </div>
-                <button class="btn-danger" onclick="deletePreset()">Delete Preset</button>
-                <div class="response" id="deletePresetResponse"></div>
+
             </div>
         </div>
     </div>
@@ -656,10 +742,27 @@
     <script>
         let jwtToken = localStorage.getItem('mve_jwt_token') || '';
 
-        // Initialize
+        // 초기화 - 쿠키되어 있는 토큰을 로드하고 있다?
         document.addEventListener('DOMContentLoaded', () => {
             updateTokenDisplay();
         });
+
+        // 탭 스위칭
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tc => tc.classList.remove('active'));
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            // Show selected tab content
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
 
         function updateTokenDisplay() {
             const display = document.getElementById('currentToken');
@@ -715,12 +818,13 @@
             document.getElementById(elementId).textContent = JSON.stringify(response, null, 2);
         }
 
-        // Login Server APIs
+        // 로그인 서버 헬스 체크 API
         async function testLoginHealth() {
             const response = await apiCall(`${getLoginServerUrl()}/health`);
             displayResponse('healthResponse', response);
         }
 
+        // 로그인 서버 인증 API
         async function checkEmail() {
             const email = document.getElementById('checkEmail').value;
             const response = await apiCall(`${getLoginServerUrl()}/api/auth/check-email`, {
@@ -819,12 +923,13 @@
             }
         }
 
-        // Resource Server APIs
+        // 리소스 서버 헬스 체크 API
         async function testResourceHealth() {
             const response = await apiCall(`${getResourceServerUrl()}/health`);
             displayResponse('resourceHealthResponse', response);
         }
 
+        // 리소스 서버 음원 스트림 API
         async function getAudioList() {
             const response = await apiCall(`${getResourceServerUrl()}/api/audio/list`);
             displayResponse('audioListResponse', response);
@@ -930,6 +1035,7 @@
             }
         }
 
+        // 리소스 서버 모델 생성 API
         async function getModelList() {
             const response = await apiCall(`${getResourceServerUrl()}/api/models/list`);
             displayResponse('modelListResponse', response);
@@ -978,7 +1084,7 @@
             }
         }
 
-        // Concert APIs
+        // 리소스 서버 콘서트 세션 API
         async function createConcert() {
             const concertName = document.getElementById('concertName').value;
             const maxAudience = document.getElementById('concertMaxAudience').value;
@@ -1052,6 +1158,58 @@
             displayResponse('concertInfoResponse', response);
         }
 
+        async function updateListenServer() {
+            const roomId = document.getElementById('listenServerRoomId').value;
+            const localIP = document.getElementById('listenServerLocalIP').value;
+            const port = document.getElementById('listenServerPort').value;
+            const publicIP = document.getElementById('listenServerPublicIP').value;
+            const publicPort = document.getElementById('listenServerPublicPort').value;
+
+            if (!roomId || !localIP || !port) {
+                displayResponse('updateListenServerResponse', { error: 'Room ID, Local IP, and Port are required' });
+                return;
+            }
+
+            const body = {
+                localIP,
+                port: parseInt(port)
+            };
+
+            if (publicIP) body.publicIP = publicIP;
+            if (publicPort) body.publicPort = parseInt(publicPort);
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/listen-server`, {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+            displayResponse('updateListenServerResponse', response);
+        }
+
+        async function toggleConcertOpen(isOpen) 
+        {
+            // 콘서트를 열고 싶은 룸의 Id
+            const roomId = document.getElementById('toggleConcertOpenRoomId').value;
+            if (!roomId) {
+                displayResponse('joinConcertResponse', { error: 'Room ID is required' });
+                return;
+            }
+
+            // 업데이트할 룸의 상태
+            const body = {
+                isOpen
+            }
+
+            // API 호출 및 리스폰스 획득
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/toggle-open`, {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+
+            //리스폰스 출력
+            displayResponse('toggleConcertOpenResponse', response);
+        }
+
+        // 리소스 서버 콘서트 곡 API
         async function addSong() {
             const roomId = document.getElementById('addSongRoomId').value;
             const songNum = document.getElementById('addSongNum').value;
@@ -1121,6 +1279,7 @@
             displayResponse('currentSongResponse', response);
         }
 
+        // 리소스 서버 엑세서리 관리 API
         async function addAccessory() {
             const roomId = document.getElementById('addAccessoryRoomId').value;
             const socketName = document.getElementById('addAccessorySocketName').value;
@@ -1200,7 +1359,7 @@
             displayResponse('updateAccessoriesResponse', response);
         }
 
-        // Accessory Preset APIs
+        // 리소스 서버 엑세서리 프리셋 API
         async function savePreset() {
             const presetName = document.getElementById('presetName').value;
             const description = document.getElementById('presetDescription').value;
@@ -1318,7 +1477,7 @@
             displayResponse('deletePresetResponse', response);
         }
 
-        // Copy example to input field
+        // 입력 필드에 예제를 복사
         function copyToInput(inputId, jsonText, element) {
             const textarea = document.getElementById(inputId);
             // HTML entities를 실제 문자로 변환
