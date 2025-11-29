@@ -105,8 +105,8 @@
 
         <!-- 탭 -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('auth')">인증 (Authentication)</button>
-            <button class="tab" onclick="switchTab('audio')">음원 (Audio)</button>
+            <button class="tab active" onclick="switchTab('auth')">인증</button>
+            <button class="tab" onclick="switchTab('audio')">음원</button>
             <button class="tab" onclick="switchTab('model-register')">액세서리 모델 생성</button>
             <button class="tab" onclick="switchTab('model-manage')">액세서리 모델 관리</button>
             <button class="tab" onclick="switchTab('studio-concert')">스튜디오 콘서트 세션</button>
@@ -543,6 +543,40 @@
                     <div class="response" id="toggleConcertOpenResponse"></div>
                 </div>
 
+                <!-- Register Client (Join) -->
+                <div class="api-group">
+                    <h3>POST /api/concert/:roomId/join - Register Client (JWT Required, Studio Only)</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Room ID</label>
+                            <input type="text" id="joinRoomIdStudio" placeholder="concert_1234567890_abc123">
+                        </div>
+                        <div class="input-group">
+                            <label>Client User ID</label>
+                            <input type="number" id="joinClientId" placeholder="2">
+                        </div>
+                    </div>
+                    <button class="btn-secondary" onclick="joinConcert()">Register Client</button>
+                    <div class="response" id="joinConcertResponse"></div>
+                </div>
+
+                <!-- Unregister Client (Leave) -->
+                <div class="api-group">
+                    <h3>POST /api/concert/:roomId/leave - Unregister Client (JWT Required, Studio Only)</h3>
+                    <div class="flex">
+                        <div class="input-group">
+                            <label>Room ID</label>
+                            <input type="text" id="leaveRoomId" placeholder="concert_1234567890_abc123">
+                        </div>
+                        <div class="input-group">
+                            <label>Client User ID</label>
+                            <input type="number" id="leaveClientId" placeholder="2">
+                        </div>
+                    </div>
+                    <button class="btn-danger" onclick="leaveConcert()">Unregister Client</button>
+                    <div class="response" id="leaveConcertResponse"></div>
+                </div>
+
                 <!-- Add Song -->
                 <div class="api-group">
                     <h3>POST /api/concert/:roomId/songs/add - Add Song (JWT Required, Studio Only)</h3>
@@ -711,17 +745,6 @@
                     </div>
                     <button class="btn-primary" onclick="getConcertInfo()">Get Concert Info</button>
                     <div class="response" id="concertInfoResponse"></div>
-                </div>
-
-                <!-- Join Concert -->
-                <div class="api-group">
-                    <h3>POST /api/concert/:roomId/join - Join Concert (JWT Required)</h3>
-                    <div class="input-group">
-                        <label>Room ID</label>
-                        <input type="text" id="joinRoomId" placeholder="concert_1234567890_abc123">
-                    </div>
-                    <button class="btn-secondary" onclick="joinConcert()">Join Concert</button>
-                    <div class="response" id="joinConcertResponse"></div>
                 </div>
 
                 <!-- Get Current Song -->
@@ -1135,16 +1158,37 @@
         }
 
         async function joinConcert() {
-            const roomId = document.getElementById('joinRoomId').value;
-            if (!roomId) {
+            const roomId = document.getElementById('joinRoomIdStudio').value;
+            const clientId = document.getElementById('joinClientId').value;
+
+            if (!roomId || !clientId) {
                 displayResponse('joinConcertResponse', { error: 'Room ID is required' });
                 return;
             }
 
             const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/join`, {
-                method: 'POST'
+                method: 'POST',
+                body: JSON.stringify({
+                    clientId: parseInt(clientId)
+                })
             });
             displayResponse('joinConcertResponse', response);
+        }
+
+        async function leaveConcert() {
+            const roomId = document.getElementById('leaveRoomId').value;
+            const clientId = document.getElementById('leaveClientId').value;
+
+            if (!roomId || !clientId) {
+                displayResponse('leaveConcertResponse', { error: 'Room ID and Client ID are required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/${roomId}/leave`, {
+                method: 'POST',
+                body: JSON.stringify({ clientId: parseInt(clientId) })
+            });
+            displayResponse('leaveConcertResponse', response);
         }
 
         async function getConcertInfo() {
