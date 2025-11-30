@@ -49,10 +49,10 @@ cd mve-resource-server
 npm install
 cd ..
 
-# PM2 재시작
+# PM2 재시작 (ecosystem.config.js 사용)
 echo ""
-echo "[8/8] Restarting PM2 processes..."
-pm2 restart all
+echo "[8/8] Restarting PM2 processes with ecosystem.config.js..."
+pm2 restart ecosystem.config.js --env production
 
 echo ""
 echo "========================================"

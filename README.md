@@ -171,14 +171,31 @@ sudo nginx -t && sudo systemctl reload nginx
 # 밑 내용을 sudo nano /etc/nginx/sites-enabled/default로 작성
 server {
     listen 80;
-
+    
     # 용량 제한 100MB
     client_max_body_size 100M;
-
+    
     # EC2 도메인 또는 퍼블릭 IP
     server_name your-domain.com;
 
-    # Resource Server API (먼저 정의)
+    # 헬스 체크 API
+    location /health/login {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /health/resource {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # Resource Server API
     location /api/audio {
         proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
@@ -188,6 +205,22 @@ server {
     }
 
     location /api/models {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /api/concert {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /api/accessory-presets {
         proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
