@@ -105,7 +105,8 @@
 
         <!-- 탭 -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('auth')">인증</button>
+            <button class="tab active" onclick="switchTab('health')">헬스 체크</button>
+            <button class="tab" onclick="switchTab('auth')">인증</button>
             <button class="tab" onclick="switchTab('audio')">음원</button>
             <button class="tab" onclick="switchTab('model-register')">액세서리 모델 생성</button>
             <button class="tab" onclick="switchTab('model-manage')">액세서리 모델 관리</button>
@@ -113,17 +114,31 @@
             <button class="tab" onclick="switchTab('audience-concert')">오디언스 콘서트 세션</button>
         </div>
 
-        <!-- 탭 콘텐츠: 인증 -->
-        <div id="tab-auth" class="tab-content active">
+        <!-- 탭 콘텐츠: 헬스 체크-->
+        <div id="tab-health" class="tab-content active">
             <div class="section">
-                <h2>인증 API</h2>
+                <h2>헬스 체크 API</h2>
 
                 <!-- Health Check -->
                 <div class="api-group">
-                    <h3>GET /health - Health Check</h3>
+                    <h3>GET /health/login - Health Check</h3>
                     <button class="btn-primary" onclick="testLoginHealth()">Test Health</button>
                     <div class="response" id="healthResponse"></div>
                 </div>
+
+                <!-- Health Check -->
+                <div class="api-group">
+                    <h3>GET /health/resource - Health Check</h3>
+                    <button class="btn-primary" onclick="testResourceHealth()">Test Health</button>
+                    <div class="response" id="resourceHealthResponse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 탭 콘텐츠: 인증 -->
+        <div id="tab-auth" class="tab-content">
+            <div class="section">
+                <h2>인증 API</h2>
 
                 <!-- Check Email -->
                 <div class="api-group">
@@ -233,13 +248,6 @@
         <div id="tab-audio" class="tab-content">
             <div class="section">
                 <h2>음원 API</h2>
-
-                <!-- Health Check -->
-                <div class="api-group">
-                    <h3>GET /health - Health Check</h3>
-                    <button class="btn-primary" onclick="testResourceHealth()">Test Health</button>
-                    <div class="response" id="resourceHealthResponse"></div>
-                </div>
 
                 <!-- Audio List -->
                 <div class="api-group">
@@ -843,7 +851,7 @@
 
         // 로그인 서버 헬스 체크 API
         async function testLoginHealth() {
-            const response = await apiCall(`${getLoginServerUrl()}/health`);
+            const response = await apiCall(`${getLoginServerUrl()}/health/login`);
             displayResponse('healthResponse', response);
         }
 
@@ -948,7 +956,7 @@
 
         // 리소스 서버 헬스 체크 API
         async function testResourceHealth() {
-            const response = await apiCall(`${getResourceServerUrl()}/health`);
+            const response = await apiCall(`${getResourceServerUrl()}/health/resource`);
             displayResponse('resourceHealthResponse', response);
         }
 
