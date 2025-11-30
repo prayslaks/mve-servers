@@ -119,14 +119,14 @@
             <div class="section">
                 <h2>헬스 체크 API</h2>
 
-                <!-- Health Check -->
+                <!-- 로그인 서버 헬스 체크 -->
                 <div class="api-group">
                     <h3>GET /health/login - Health Check</h3>
                     <button class="btn-primary" onclick="testLoginHealth()">Test Health</button>
                     <div class="response" id="healthResponse"></div>
                 </div>
 
-                <!-- Health Check -->
+                <!-- 리소스 서버 헬스 체크 -->
                 <div class="api-group">
                     <h3>GET /health/resource - Health Check</h3>
                     <button class="btn-primary" onclick="testResourceHealth()">Test Health</button>
@@ -140,7 +140,7 @@
             <div class="section">
                 <h2>인증 API</h2>
 
-                <!-- Check Email -->
+                <!-- 이메일 확인 -->
                 <div class="api-group">
                     <h3>POST /api/auth/check-email - Check Email Availability</h3>
                     <div class="input-group">
@@ -151,7 +151,7 @@
                     <div class="response" id="checkEmailResponse"></div>
                 </div>
 
-                <!-- Send Verification -->
+                <!-- 인증 번호 메일 발송 -->
                 <div class="api-group">
                     <h3>POST /api/auth/send-verification - Send Verification Code</h3>
                     <div class="input-group">
@@ -162,7 +162,7 @@
                     <div class="response" id="sendVerificationResponse"></div>
                 </div>
 
-                <!-- Verify Code -->
+                <!-- 인증 번호 -->
                 <div class="api-group">
                     <h3>POST /api/auth/verify-code - Verify Code</h3>
                     <div class="flex">
@@ -179,7 +179,7 @@
                     <div class="response" id="verifyCodeResponse"></div>
                 </div>
 
-                <!-- Signup -->
+                <!-- 회원가입 -->
                 <div class="api-group">
                     <h3>POST /api/auth/signup - Sign Up</h3>
                     <div class="flex">
@@ -200,7 +200,7 @@
                     <div class="response" id="signupResponse"></div>
                 </div>
 
-                <!-- Login -->
+                <!-- 로그인 -->
                 <div class="api-group">
                     <h3>POST /api/auth/login - Login</h3>
                     <div class="flex">
@@ -217,21 +217,21 @@
                     <div class="response" id="loginResponse"></div>
                 </div>
 
-                <!-- Profile -->
+                <!-- 프로필 -->
                 <div class="api-group">
                     <h3>GET /api/auth/profile - Get Profile (JWT Required)</h3>
                     <button class="btn-primary" onclick="getProfile()">Get Profile</button>
                     <div class="response" id="profileResponse"></div>
                 </div>
 
-                <!-- Logout -->
+                <!-- 로그아웃 -->
                 <div class="api-group">
                     <h3>POST /api/auth/logout - Logout (JWT Required)</h3>
                     <button class="btn-warning" onclick="logout()">Logout</button>
                     <div class="response" id="logoutResponse"></div>
                 </div>
 
-                <!-- Withdraw -->
+                <!-- 회원철회 -->
                 <div class="api-group">
                     <h3>DELETE /api/auth/withdraw - Delete Account (JWT Required)</h3>
                     <div class="input-group">
@@ -249,14 +249,14 @@
             <div class="section">
                 <h2>음원 API</h2>
 
-                <!-- Audio List -->
+                <!-- 음원 목록 -->
                 <div class="api-group">
                     <h3>GET /api/audio/list - Get Audio List (JWT Required)</h3>
                     <button class="btn-primary" onclick="getAudioList()">Get Audio List</button>
                     <div class="response" id="audioListResponse"></div>
                 </div>
 
-                <!-- Audio Info -->
+                <!-- 음원 정보 -->
                 <div class="api-group">
                     <h3>GET /api/audio/:id - Get Audio Info (JWT Required)</h3>
                     <div class="input-group">
@@ -267,7 +267,7 @@
                     <div class="response" id="audioInfoResponse"></div>
                 </div>
 
-                <!-- Audio Search -->
+                <!-- 음원 검색 -->
                 <div class="api-group">
                     <h3>GET /api/audio/search/:query - Search Audio (JWT Required)</h3>
                     <div class="input-group">
@@ -278,7 +278,7 @@
                     <div class="response" id="audioSearchResponse"></div>
                 </div>
 
-                <!-- Audio Upload -->
+                <!-- 음원 업로드 -->
                 <div class="api-group">
                     <h3>POST /api/audio/upload - Upload Audio (JWT Required)</h3>
                     <div class="flex">
@@ -299,16 +299,30 @@
                     <div class="response" id="uploadAudioResponse"></div>
                 </div>
 
-                <!-- Audio Stream -->
+                <!-- 음원 파일 서버 경로 획득 -->
                 <div class="api-group">
-                    <h3>GET /api/audio/stream/:id - Stream Audio (JWT Required)</h3>
+                    <h3>GET /api/audio/stream/:id - Get Audio Url (JWT Required)</h3>
                     <div class="input-group">
                         <label>Audio ID</label>
-                        <input type="number" id="streamAudioId" placeholder="Enter Audio ID">
+                        <input type="number" id="targetAudioId" placeholder="Enter Audio ID">
                     </div>
                     <button class="btn-secondary" onclick="streamAudio()">Get Stream URL</button>
+                    <div class="response" id="getAudioUrlResponse"></div>
+                </div>
+
+                <!-- 음원 스트리밍 -->
+                <div class="api-group">
+                    <h3>GET /api/audio/stream/:id - Stream Audio</h3>
+                    <div class="input-group">
+                        <label>Audio Url</label>
+                        <input type="text" id="targetAudioUrl" placeholder="Enter Audio Url">
+                    </div>
+                    <button class="btn-secondary" onclick="playAudio()">Stream Audio With URL</button>
                     <div class="response" id="streamAudioResponse"></div>
                 </div>
+
+                <!-- 오디오 플레이어 -->
+                <audio id="audioPlayer" controls style="width: 100%; margin-top: 10px; display: block;"></audio>
             </div>
         </div>
 
@@ -1026,7 +1040,7 @@
         }
 
         async function streamAudio() {
-            const id = document.getElementById('streamAudioId').value;
+            const id = document.getElementById('targetAudioId').value;
             const startTime = Date.now();
             try {
                 const response = await fetch(`${getResourceServerUrl()}/api/audio/stream/${id}`, {
@@ -1038,7 +1052,7 @@
                 // S3 모드: JSON 응답 (presigned URL)
                 if (contentType && contentType.includes('application/json')) {
                     const data = await response.json();
-                    displayResponse('streamAudioResponse', {
+                    displayResponse('getAudioUrlResponse', {
                         status: response.status,
                         statusText: response.statusText,
                         duration: `${duration}ms`,
@@ -1046,7 +1060,7 @@
                     });
                 } else {
                     // 로컬 모드: 바이너리 스트리밍
-                    displayResponse('streamAudioResponse', {
+                    displayResponse('getAudioUrlResponse', {
                         status: response.status,
                         statusText: response.statusText,
                         duration: `${duration}ms`,
@@ -1058,10 +1072,54 @@
                 }
             } catch (error) {
                 const duration = Date.now() - startTime;
-                displayResponse('streamAudioResponse', {
+                displayResponse('getAudioUrlResponse', {
                     status: 'ERROR',
                     duration: `${duration}ms`,
                     error: error.message
+                });
+            }
+        }
+
+        async function playAudio() {
+            const startTime = Date.now();
+
+            let audioUrl = document.getElementById('targetAudioUrl').value;
+            const player = document.getElementById('audioPlayer');
+
+            if (audioUrl) {
+                try {
+                    // 상대 경로인 경우 (로컬) - fetch로 blob 가져와서 재생
+                    if (audioUrl.startsWith('/')) {
+                        const audioResponse = await fetch(`${getResourceServer()}${audioUrl}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const blob = await audioResponse.blob();
+                        audioUrl = URL.createObjectURL(blob);
+                    }
+
+                    player.src = audioUrl;
+                    player.style.display = 'block';
+                    await player.play();
+
+                    const duration = Date.now() - startTime;
+                    displayResponse('streamAudioResponse', {
+                        status: `재생 중: ${audioUrl}`,
+                        duration: `${duration}ms`
+                    });
+                } catch (error) {
+                    const duration = Date.now() - startTime;
+                    displayResponse('streamAudioResponse', {
+                        status: 'ERROR',
+                        duration: `${duration}ms`,
+                        error: error.message
+                    });
+                }
+            } else {
+                const duration = Date.now() - startTime;
+                displayResponse('streamAudioResponse', {
+                    status: 'ERROR',
+                    duration: `${duration}ms`,
+                    error: 'URL이 입력되지 않았습니다'
                 });
             }
         }
