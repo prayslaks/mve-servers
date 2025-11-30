@@ -39,6 +39,9 @@ sudo apt install -y nodejs
 # PostgreSQL 설치
 sudo apt install -y postgresql postgresql-contrib
 
+# Redis 설치
+sudo apt install -y redis-server
+
 # Git 설치
 sudo apt install -y git
 
@@ -46,10 +49,15 @@ sudo apt install -y git
 node --version
 npm --version
 psql --version
+redis-server --version
 
 # PostgreSQL 서비스 시작
 sudo systemctl start postgresql
 sudo systemctl enable postgresql
+
+# Redis 서비스 시작
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
 ```
 
 ```bash
@@ -69,6 +77,7 @@ git submodule update --init --recursive
 
 - JWT 토큰 값이 일치하지 않으면 특정 API 이용 불가
 - 데이터베이스 값이 일치하지 않으면 정상 처리 불가
+- Redis 값이 일치하지 않으면 각 서버가 독립적인 Redis를 사용하게 됨
 
 SMTP 설정이나 파일 서버 설정 등은 각자 역할에 따라서 구분됩니다.
 
@@ -93,6 +102,11 @@ EMAIL_PORT=587
 EMAIL_SECURE=false
 EMAIL_USER=your_naver_email@naver.com
 EMAIL_PASSWORD=your_naver_app_password
+
+# Redis 환경설정 (이메일 인증번호 및 Rate Limiting)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
 ```
 
 #### 리소스 서버 예시 (S3)
@@ -118,6 +132,11 @@ JWT_SECRET=your_secret_key_here_make_it_long_and_random
 
 # AWS S3 버킷 경로 (음원 및 모델링 파일이 저장된 파일 서버)
 FILE_SERVER_PATH=./files
+
+# Redis 환경 설정 (콘서트 세션 관리용)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
 ```
 
 **⚠️ 주의**: 자세한 내용은 각 서브모듈 리포지토리의 README.md와 .env.example을 참고해 설정합니다.
@@ -270,6 +289,11 @@ EMAIL_PORT=587
 EMAIL_SECURE=false
 EMAIL_USER=your_naver_email@naver.com
 EMAIL_PASSWORD=your_naver_app_password
+
+# Redis 환경설정 (이메일 인증번호 및 Rate Limiting)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
 ```
 
 #### 리소스 서버 예시 (로컬)
@@ -293,6 +317,11 @@ JWT_SECRET=your_secret_key_here_make_it_long_and_random
 
 # 로컬 스토리지 경로 (음원 및 모델링 파일이 저장된 파일 서버)
 FILE_SERVER_PATH=./files
+
+# Redis 환경 설정 (콘서트 세션 관리용)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
 ```
 
 ```powershell
@@ -340,6 +369,7 @@ windows-local-start-servers.bat
 - **Node.js** - 런타임 환경
 - **Express** - 웹 프레임워크
 - **PostgreSQL** - 관계형 데이터베이스
+- **Redis** - 인메모리 데이터 저장소 (이메일 인증, 콘서트 세션 관리)
 - **JWT** - 인증 토큰
 - **PM2** - 프로세스 관리
 - **Nginx** - 리버스 프록시
