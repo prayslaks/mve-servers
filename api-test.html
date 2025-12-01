@@ -108,6 +108,7 @@
             <button class="tab active" onclick="switchTab('health')">헬스 체크</button>
             <button class="tab" onclick="switchTab('auth')">인증</button>
             <button class="tab" onclick="switchTab('audio')">음원</button>
+            <button class="tab" onclick="switchTab('ai-model')">AI 3D 모델 생성</button>
             <button class="tab" onclick="switchTab('model-register')">액세서리 모델 생성</button>
             <button class="tab" onclick="switchTab('model-manage')">액세서리 모델 관리</button>
             <button class="tab" onclick="switchTab('studio-concert')">스튜디오 콘서트 세션</button>
@@ -323,6 +324,127 @@
 
                 <!-- 오디오 플레이어 -->
                 <audio id="audioPlayer" controls style="width: 100%; margin-top: 10px; display: block;"></audio>
+            </div>
+        </div>
+
+        <!-- 탭 콘텐츠: AI 3D 모델 생성 -->
+        <div id="tab-ai-model" class="tab-content">
+            <div class="section">
+                <h2>AI 3D 모델 생성 API</h2>
+
+                <!-- AI 모델 생성 -->
+                <div class="api-group">
+                    <h3>POST /api/models/generate - Generate 3D Model from Image (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>PNG Image File</label>
+                        <input type="file" id="generateImageFile" accept=".png">
+                    </div>
+                    <div class="input-group">
+                        <label>Prompt</label>
+                        <input type="text" id="generatePrompt" placeholder="a cute cat">
+                    </div>
+                    <button class="btn-primary" onclick="generateModel()">Generate Model</button>
+                    <div class="response" id="generateModelResponse"></div>
+                </div>
+
+                <!-- Job 상태 조회 -->
+                <div class="api-group">
+                    <h3>GET /api/models/jobs/:job_id - Check Job Status (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Job ID</label>
+                        <input type="text" id="jobId" placeholder="uuid-from-generate-response">
+                    </div>
+                    <button class="btn-primary" onclick="checkJobStatus()">Check Status</button>
+                    <button class="btn-secondary" onclick="startPolling()">Start Auto-Polling (3s)</button>
+                    <button class="btn-warning" onclick="stopPolling()">Stop Polling</button>
+                    <div class="response" id="jobStatusResponse"></div>
+                </div>
+
+                <!-- 모델 리스트 -->
+                <div class="api-group">
+                    <h3>GET /api/models/list - Get Model List (JWT Required)</h3>
+                    <button class="btn-primary" onclick="getModelList()">Get Model List</button>
+                    <div class="response" id="modelListResponse"></div>
+                </div>
+
+                <!-- 모델 정보 -->
+                <div class="api-group">
+                    <h3>GET /api/models/:id - Get Model Info (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Model ID</label>
+                        <input type="number" id="aiModelId" placeholder="1">
+                    </div>
+                    <button class="btn-primary" onclick="getAIModelInfo()">Get Model Info</button>
+                    <div class="response" id="aiModelInfoResponse"></div>
+                </div>
+
+                <!-- 모델 업로드 (수동) -->
+                <div class="api-group">
+                    <h3>POST /api/models/upload - Upload Model Manually (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Model Name (Optional)</label>
+                        <input type="text" id="uploadModelName" placeholder="My Model">
+                    </div>
+                    <div class="input-group">
+                        <label>Model File (.glb, .fbx, etc.)</label>
+                        <input type="file" id="uploadModelFile" accept=".glb,.gltf,.fbx,.obj">
+                    </div>
+                    <div class="input-group">
+                        <label>Thumbnail (Optional)</label>
+                        <input type="file" id="uploadModelThumbnail" accept=".png,.jpg,.jpeg">
+                    </div>
+                    <button class="btn-primary" onclick="uploadModel()">Upload Model</button>
+                    <div class="response" id="uploadModelResponse"></div>
+                </div>
+
+                <!-- 모델 다운로드 -->
+                <div class="api-group">
+                    <h3>GET /api/models/:id/download - Download Model (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Model ID</label>
+                        <input type="number" id="downloadModelId" placeholder="1">
+                    </div>
+                    <button class="btn-secondary" onclick="downloadModel()">Download Model</button>
+                    <div class="response" id="downloadModelResponse"></div>
+                </div>
+
+                <!-- 모델 삭제 -->
+                <div class="api-group">
+                    <h3>DELETE /api/models/:id - Delete Model (JWT Required)</h3>
+                    <div class="input-group">
+                        <label>Model ID</label>
+                        <input type="number" id="deleteAIModelId" placeholder="1">
+                    </div>
+                    <button class="btn-danger" onclick="deleteAIModel()">Delete Model</button>
+                    <div class="response" id="deleteAIModelResponse"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>AI 서버 Dev API (개발용 - 인증 없음)</h2>
+
+                <!-- DEV 업로드 -->
+                <div class="api-group">
+                    <h3>POST /api/models/dev/upload-from-ai - Dev Upload (NO AUTH)</h3>
+                    <div class="input-group">
+                        <label>User ID (Optional, default: 1)</label>
+                        <input type="number" id="devUserId" placeholder="1" value="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Model Name (Optional)</label>
+                        <input type="text" id="devModelName" placeholder="Test Model">
+                    </div>
+                    <div class="input-group">
+                        <label>Model File (.glb, .fbx, etc.)</label>
+                        <input type="file" id="devModelFile" accept=".glb,.gltf,.fbx,.obj">
+                    </div>
+                    <div class="input-group">
+                        <label>Thumbnail (Optional)</label>
+                        <input type="file" id="devThumbnailFile" accept=".png,.jpg,.jpeg">
+                    </div>
+                    <button class="btn-warning" onclick="devUploadModel()">Dev Upload (No Auth)</button>
+                    <div class="response" id="devUploadResponse"></div>
+                </div>
             </div>
         </div>
 
@@ -1120,6 +1242,256 @@
                     status: 'ERROR',
                     duration: `${duration}ms`,
                     error: 'URL이 입력되지 않았습니다'
+                });
+            }
+        }
+
+        // AI 3D 모델 생성 API
+        let pollingInterval = null;
+
+        async function generateModel() {
+            const fileInput = document.getElementById('generateImageFile');
+            const prompt = document.getElementById('generatePrompt').value;
+
+            if (!fileInput.files[0]) {
+                displayResponse('generateModelResponse', { error: 'No PNG file selected' });
+                return;
+            }
+
+            if (!prompt) {
+                displayResponse('generateModelResponse', { error: 'Prompt is required' });
+                return;
+            }
+
+            // Check if file is PNG
+            const fileName = fileInput.files[0].name.toLowerCase();
+            if (!fileName.endsWith('.png')) {
+                displayResponse('generateModelResponse', { error: 'Only PNG files are allowed' });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            formData.append('prompt', prompt);
+
+            const startTime = Date.now();
+            try {
+                const response = await fetch(`${getResourceServerUrl()}/api/models/generate`, {
+                    method: 'POST',
+                    headers: {
+                        ...getAuthHeaders()
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+                const duration = Date.now() - startTime;
+                displayResponse('generateModelResponse', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    duration: `${duration}ms`,
+                    data
+                });
+
+                // Auto-fill job_id if successful
+                if (data.job_id) {
+                    document.getElementById('jobId').value = data.job_id;
+                }
+            } catch (error) {
+                const duration = Date.now() - startTime;
+                displayResponse('generateModelResponse', {
+                    status: 'ERROR',
+                    duration: `${duration}ms`,
+                    error: error.message
+                });
+            }
+        }
+
+        async function checkJobStatus() {
+            const jobId = document.getElementById('jobId').value;
+
+            if (!jobId) {
+                displayResponse('jobStatusResponse', { error: 'Job ID is required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/models/jobs/${jobId}`);
+            displayResponse('jobStatusResponse', response);
+        }
+
+        function startPolling() {
+            const jobId = document.getElementById('jobId').value;
+
+            if (!jobId) {
+                displayResponse('jobStatusResponse', { error: 'Job ID is required for polling' });
+                return;
+            }
+
+            // Stop existing polling
+            stopPolling();
+
+            // Start new polling
+            displayResponse('jobStatusResponse', { status: 'Polling started (every 3 seconds)...' });
+
+            pollingInterval = setInterval(async () => {
+                const response = await apiCall(`${getResourceServerUrl()}/api/models/jobs/${jobId}`);
+                displayResponse('jobStatusResponse', response);
+
+                // Stop polling if completed or failed
+                if (response.data && response.data.job) {
+                    if (response.data.job.status === 'completed' || response.data.job.status === 'failed') {
+                        stopPolling();
+                        displayResponse('jobStatusResponse', {
+                            ...response,
+                            message: `Polling stopped. Job ${response.data.job.status}.`
+                        });
+                    }
+                }
+            }, 3000);
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+
+        async function getAIModelInfo() {
+            const id = document.getElementById('aiModelId').value;
+            const response = await apiCall(`${getResourceServerUrl()}/api/models/${id}`);
+            displayResponse('aiModelInfoResponse', response);
+        }
+
+        async function uploadModel() {
+            const modelName = document.getElementById('uploadModelName').value;
+            const modelFileInput = document.getElementById('uploadModelFile');
+            const thumbnailFileInput = document.getElementById('uploadModelThumbnail');
+
+            if (!modelFileInput.files[0]) {
+                displayResponse('uploadModelResponse', { error: 'Model file is required' });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('model', modelFileInput.files[0]);
+
+            if (modelName) {
+                formData.append('model_name', modelName);
+            }
+
+            if (thumbnailFileInput.files[0]) {
+                formData.append('thumbnail', thumbnailFileInput.files[0]);
+            }
+
+            const startTime = Date.now();
+            try {
+                const response = await fetch(`${getResourceServerUrl()}/api/models/upload`, {
+                    method: 'POST',
+                    headers: {
+                        ...getAuthHeaders()
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+                const duration = Date.now() - startTime;
+                displayResponse('uploadModelResponse', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    duration: `${duration}ms`,
+                    data
+                });
+            } catch (error) {
+                const duration = Date.now() - startTime;
+                displayResponse('uploadModelResponse', {
+                    status: 'ERROR',
+                    duration: `${duration}ms`,
+                    error: error.message
+                });
+            }
+        }
+
+        async function downloadModel() {
+            const id = document.getElementById('downloadModelId').value;
+
+            if (!id) {
+                displayResponse('downloadModelResponse', { error: 'Model ID is required' });
+                return;
+            }
+
+            const url = `${getResourceServerUrl()}/api/models/${id}/download`;
+
+            displayResponse('downloadModelResponse', {
+                message: 'Opening download URL...',
+                url: url,
+                note: 'File should download automatically. If not, copy the URL above and paste it in a new tab with Authorization header.'
+            });
+
+            // Open in new window with token
+            window.open(url, '_blank');
+        }
+
+        async function deleteAIModel() {
+            const id = document.getElementById('deleteAIModelId').value;
+            if (!id) {
+                displayResponse('deleteAIModelResponse', { error: 'Model ID is required' });
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete model ${id}?`)) {
+                const response = await apiCall(`${getResourceServerUrl()}/api/models/${id}`, {
+                    method: 'DELETE'
+                });
+                displayResponse('deleteAIModelResponse', response);
+            }
+        }
+
+        async function devUploadModel() {
+            const userId = document.getElementById('devUserId').value;
+            const modelName = document.getElementById('devModelName').value;
+            const modelFileInput = document.getElementById('devModelFile');
+            const thumbnailFileInput = document.getElementById('devThumbnailFile');
+
+            if (!modelFileInput.files[0]) {
+                displayResponse('devUploadResponse', { error: 'Model file is required' });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('model', modelFileInput.files[0]);
+
+            if (userId) {
+                formData.append('user_id', userId);
+            }
+
+            if (modelName) {
+                formData.append('model_name', modelName);
+            }
+
+            if (thumbnailFileInput.files[0]) {
+                formData.append('thumbnail', thumbnailFileInput.files[0]);
+            }
+
+            const startTime = Date.now();
+            try {
+                const response = await fetch(`${getResourceServerUrl()}/api/models/dev/upload-from-ai`, {
+                    method: 'POST',
+                    // NO AUTH HEADERS - This is a dev-only endpoint
+                    body: formData
+                });
+                const data = await response.json();
+                const duration = Date.now() - startTime;
+                displayResponse('devUploadResponse', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    duration: `${duration}ms`,
+                    data
+                });
+            } catch (error) {
+                const duration = Date.now() - startTime;
+                displayResponse('devUploadResponse', {
+                    status: 'ERROR',
+                    duration: `${duration}ms`,
+                    error: error.message
                 });
             }
         }
