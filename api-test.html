@@ -927,6 +927,15 @@
                 body: JSON.stringify({ email })
             });
             displayResponse('checkEmailResponse', response);
+
+            // 사용자 친화적 메시지 표시
+            if (response.data) {
+                if (response.data.success) {
+                    console.log('✓ 이메일 사용 가능');
+                } else if (response.data.error === 'EMAIL_ALREADY_EXISTS') {
+                    console.log('⚠ 이메일이 이미 사용 중입니다');
+                }
+            }
         }
 
         async function sendVerification() {
