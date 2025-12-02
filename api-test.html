@@ -182,15 +182,15 @@
 
                 <!-- 회원가입 -->
                 <div class="api-group">
-                    <h3>POST /api/auth/signup - Sign Up</h3>
+                    <h3>POST /api/auth/signup - Sign Up (Requires Verified Email)</h3>
                     <div class="flex">
                         <div class="input-group">
-                            <label>Username</label>
-                            <input type="text" id="signupUsername" placeholder="testuser">
+                            <label>Email (must be verified)</label>
+                            <input type="email" id="signupEmail" placeholder="test@example.com">
                         </div>
                         <div class="input-group">
-                            <label>Email</label>
-                            <input type="email" id="signupEmail" placeholder="test@example.com">
+                            <label>Verification Code (6 digits)</label>
+                            <input type="text" id="signupCode" placeholder="123456">
                         </div>
                         <div class="input-group">
                             <label>Password</label>
@@ -206,8 +206,8 @@
                     <h3>POST /api/auth/login - Login</h3>
                     <div class="flex">
                         <div class="input-group">
-                            <label>Username</label>
-                            <input type="text" id="loginUsername" placeholder="testuser">
+                            <label>Email</label>
+                            <input type="email" id="loginEmail" placeholder="test@example.com">
                         </div>
                         <div class="input-group">
                             <label>Password</label>
@@ -1021,22 +1021,22 @@
         }
 
         async function signup() {
-            const username = document.getElementById('signupUsername').value;
             const email = document.getElementById('signupEmail').value;
+            const code = document.getElementById('signupCode').value;
             const password = document.getElementById('signupPassword').value;
             const response = await apiCall(`${getLoginServerUrl()}/api/auth/signup`, {
                 method: 'POST',
-                body: JSON.stringify({ username, email, password })
+                body: JSON.stringify({ email, code, password })
             });
             displayResponse('signupResponse', response);
         }
 
         async function login() {
-            const username = document.getElementById('loginUsername').value;
+            const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const response = await apiCall(`${getLoginServerUrl()}/api/auth/login`, {
                 method: 'POST',
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ email, password })
             });
             displayResponse('loginResponse', response);
 
