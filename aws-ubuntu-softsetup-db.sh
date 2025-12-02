@@ -200,7 +200,7 @@ if ! test_postgres_connection "$RESOURCE_DB_HOST" "$RESOURCE_DB_PORT" "$RESOURCE
     exit 1
 fi
 
-# 데이터베이스 생성 (Login과 같은 DB를 사용하는 경우 건너뜀)
+# Resource DB는 이제 항상 분리되어 있음
 if ! create_database "$RESOURCE_DB_NAME" "$RESOURCE_DB_HOST" "$RESOURCE_DB_PORT" "$RESOURCE_DB_USER"; then
     echo -e "${RED}ERROR:${NC} Failed to create database"
     exit 1

@@ -109,7 +109,6 @@
             <button class="tab" onclick="switchTab('auth')">인증</button>
             <button class="tab" onclick="switchTab('audio')">음원</button>
             <button class="tab" onclick="switchTab('ai-model')">AI 3D 모델 생성</button>
-            <button class="tab" onclick="switchTab('model-register')">액세서리 모델 생성</button>
             <button class="tab" onclick="switchTab('model-manage')">액세서리 모델 관리</button>
             <button class="tab" onclick="switchTab('studio-concert')">스튜디오 콘서트 세션</button>
             <button class="tab" onclick="switchTab('audience-concert')">오디언스 콘서트 세션</button>
@@ -444,77 +443,6 @@
                     </div>
                     <button class="btn-warning" onclick="devUploadModel()">Dev Upload (No Auth)</button>
                     <div class="response" id="devUploadResponse"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 탭 콘텐츠: 엑세서리 모델 생성 -->
-        <div id="tab-model-register" class="tab-content">
-            <div class="section">
-                <h2>액세서리 모델 생성 API</h2>
-
-                <!-- 모델 등록 -->
-                <div class="api-group">
-                    <h3>POST /api/models/register - Register Model (JWT Required)</h3>
-                    <div class="input-group">
-                        <label>Model Data (JSON)</label>
-                        <textarea id="registerModelData">{
-    "name": "My Model",
-    "file_path": "/models/my-model.glb",
-    "description": "Test model"
-}</textarea>
-                    </div>
-                    <button class="btn-primary" onclick="registerModel()">Register Model</button>
-                    <div class="response" id="registerModelResponse"></div>
-                </div>
-
-                <!-- 모델 리스트 -->
-                <div class="api-group">
-                    <h3>GET /api/models/list - Get Model List (JWT Required)</h3>
-                    <button class="btn-primary" onclick="getModelList()">Get Model List</button>
-                    <div class="response" id="modelListResponse"></div>
-                </div>
-
-                <!-- 모델 정보-->
-                <div class="api-group">
-                    <h3>GET /api/models/:id - Get Model Info (JWT Required)</h3>
-                    <div class="input-group">
-                        <label>Model ID</label>
-                        <input type="number" id="modelId" placeholder="1">
-                    </div>
-                    <button class="btn-primary" onclick="getModelInfo()">Get Model Info</button>
-                    <div class="response" id="modelInfoResponse"></div>
-                </div>
-
-                <!-- 모델 정보 업데이트 -->
-                <div class="api-group">
-                    <h3>PUT /api/models/:id - Update Model (JWT Required)</h3>
-                    <div class="flex">
-                        <div class="input-group">
-                            <label>Model ID</label>
-                            <input type="number" id="updateModelId" placeholder="1">
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <label>Update Data (JSON)</label>
-                        <textarea id="updateModelData">{
-    "name": "Updated Model",
-    "description": "Updated description"
-}</textarea>
-                    </div>
-                    <button class="btn-warning" onclick="updateModel()">Update Model</button>
-                    <div class="response" id="updateModelResponse"></div>
-                </div>
-
-                <!-- 모델 삭제 -->
-                <div class="api-group">
-                    <h3>DELETE /api/models/:id - Delete Model (JWT Required)</h3>
-                    <div class="input-group">
-                        <label>Model ID</label>
-                        <input type="number" id="deleteModelId" placeholder="1">
-                    </div>
-                    <button class="btn-danger" onclick="deleteModel()">Delete Model</button>
-                    <div class="response" id="deleteModelResponse"></div>
                 </div>
             </div>
         </div>
