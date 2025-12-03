@@ -173,7 +173,7 @@ execute_sql_file() {
 # ============================================
 echo ""
 echo "========================================"
-echo "[1/2] Login Server Database Hard Setup"
+echo "[1/2] Login Server 데이터베이스 Hard Setup"
 echo "========================================"
 
 # .env 파일 로드
@@ -224,7 +224,7 @@ echo -e "${GREEN}✓${NC} Login Server database hard setup complete"
 # ============================================
 echo ""
 echo "========================================"
-echo "[2/2] Resource Server Database Hard Setup"
+echo "[2/2] Resource Server 데이터베이스 Hard Setup"
 echo "========================================"
 
 # .env 파일 로드

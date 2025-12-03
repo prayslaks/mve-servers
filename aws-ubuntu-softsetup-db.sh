@@ -16,15 +16,19 @@
 
 cd "$(dirname "$0")"
 
-echo "========================================"
-echo "MVE PostgreSQL Database Setup"
-echo "========================================"
-
-# 색상 정의 (출력 메시지에 색상을 적용하기 위한 ANSI 이스케이프 코드)
+# 색상 정의
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
+
+echo ""
+echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║                                                            ║${NC}"
+echo -e "${GREEN}║              MVE 데이터베이스 Soft Setup (AWS)             ║${NC}"
+echo -e "${GREEN}║                                                            ║${NC}"
+echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
+echo ""
 
 # ============================================
 # 함수 정의
@@ -130,7 +134,7 @@ execute_sql_file() {
 # ============================================
 echo ""
 echo "========================================"
-echo "[1/2] Login Server Database Setup"
+echo "[1/2] Login Server 데이터베이스 셋업"
 echo "========================================"
 
 # .env 파일 로드
@@ -175,7 +179,7 @@ echo -e "${GREEN}✓${NC} Login Server database setup complete"
 # ============================================
 echo ""
 echo "========================================"
-echo "[2/2] Resource Server Database Setup"
+echo "[2/2] Resource Server 데이터베이스 셋업"
 echo "========================================"
 
 # .env 파일 로드
@@ -218,11 +222,13 @@ echo -e "${GREEN}✓${NC} Resource Server database setup complete"
 # 완료 메시지
 # ============================================
 echo ""
-echo "========================================"
-echo "Database Setup Complete!"
-echo "========================================"
+echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║                                                            ║${NC}"
+echo -e "${GREEN}║              ✓  Soft Setup 완료!  ✓                        ║${NC}"
+echo -e "${GREEN}║                                                            ║${NC}"
+echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
-echo "Databases initialized:"
+echo "초기화된 데이터베이스:"
 echo "  - Login Server: $LOGIN_DB_NAME"
 echo "  - Resource Server: $RESOURCE_DB_NAME"
 echo ""
