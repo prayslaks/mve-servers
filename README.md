@@ -83,6 +83,9 @@ SMTP 설정이나 파일 서버 설정 등은 각자 역할에 따라서 구분�
 
 #### 로그인 서버 예시
 ```env
+# 환경 설정
+NODE_ENV=development
+
 # 로그인 서버 포트 번호
 PORT=3000
 
@@ -112,6 +115,9 @@ REDIS_PASSWORD=
 #### 리소스 서버 예시 (S3)
 
 ```env
+# 환경 설정
+NODE_ENV=production
+
 # 서버 포트
 PORT=3001
 
@@ -139,7 +145,11 @@ REDIS_PORT=6379
 REDIS_PASSWORD=
 ```
 
-**⚠️ 주의**: 자세한 내용은 각 서브모듈 리포지토리의 README.md와 .env.example을 참고해 설정합니다.
+**⚠️ 중요**:
+- `NODE_ENV`: 환경 구분 (development / production)
+  - `development`: 개발용 토큰 인증 우회 로직 활성화 (리소스 서버)
+  - `production`: 보안을 위해 반드시 JWT 토큰 검증 실행
+- 자세한 내용은 각 서브모듈 리포지토리의 README.md와 .env.example을 참고해 설정합니다.
 
 ```bash
 # 최초 1회 이후에는 쉘로 하드 셋업 가능
@@ -303,6 +313,9 @@ git submodule update --init --recursive
 
 #### 로그인 서버 예시 (로컬과 AWS EC2 모두 동일)
 ```env
+# 환경 설정
+NODE_ENV=development
+
 # 로그인 서버 포트 번호
 PORT=3000
 
@@ -332,6 +345,9 @@ REDIS_PASSWORD=
 #### 리소스 서버 예시 (로컬)
 
 ```env
+# 환경 설정
+NODE_ENV=development
+
 # 서버 포트
 PORT=3001
 
@@ -382,6 +398,39 @@ windows-local-setup-servers.bat
 # 서버 실행
 windows-local-start-servers.bat
 ```
+
+---
+
+## 개발용 토큰 인증 우회 (Unreal Engine 개발 빌드용)
+
+리소스 서버는 개발 환경(`NODE_ENV=development`)에서 로그인 없이 API를 테스트할 수 있도록 하드코딩된 개발용 토큰을 지원합니다.
+
+### 개발용 토큰
+```
+MVE_DEV_AUTH_TOKEN_2024_A
+```
+
+### 사용 방법
+```http
+GET /api/audio/list
+Authorization: Bearer MVE_DEV_AUTH_TOKEN_2024_A
+```
+
+### Unreal Engine 예제
+```cpp
+// 개발 빌드에서는 하드코딩된 개발용 토큰 사용
+FString DevToken = TEXT("MVE_DEV_AUTH_TOKEN_2024_A");
+Request->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + DevToken);
+
+// 프로덕션 빌드에서는 실제 JWT 토큰 사용
+Request->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + ActualJWTToken);
+```
+
+### 보안
+- `NODE_ENV=development`일 때만 작동
+- 프로덕션 환경(`NODE_ENV=production`)에서는 **절대 활성화되지 않음**
+- 개발용 토큰 사용 시 가상 사용자 정보(`dev-user-01`) 자동 할당
+- 자세한 내용은 [mve-resource-server](mve-resource-server/) 참조
 
 ---
 
