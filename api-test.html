@@ -329,11 +329,20 @@
         <!-- 탭 콘텐츠: AI 3D 모델 생성 -->
         <div id="tab-ai-model" class="tab-content">
             <div class="section">
-                <h2>AI 3D 모델 생성 API</h2>
+                <h2>AI 3D 모델 생성 API (폴링 방식)</h2>
+                <p style="background: #e3f2fd; padding: 10px; border-radius: 4px; font-size: 12px; color: #1565c0; margin-bottom: 15px;">
+                    <strong>워크플로우:</strong><br>
+                    1️⃣ POST /api/models/generate → 즉시 job_id 받고 응답 완료<br>
+                    2️⃣ 리소스 서버가 백그라운드에서 AI 서버에 HTTP 요청 전송 (1-3분 대기)<br>
+                    3️⃣ AI 서버 응답으로 GLB 파일 데이터 직접 수신 → S3/로컬 저장 → DB 저장<br>
+                    4️⃣ GET /api/models/jobs/:job_id로 폴링하여 상태 확인 (queued → processing → completed)<br>
+                    5️⃣ completed 확인 시 download_url 획득 → 모델 다운로드
+                </p>
 
                 <!-- AI 모델 생성 -->
                 <div class="api-group">
                     <h3>POST /api/models/generate - Generate 3D Model from Image (JWT Required)</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: -5px;">즉시 job_id를 반환합니다. 백그라운드에서 AI 서버가 처리를 시작합니다.</p>
                     <div class="input-group">
                         <label>PNG Image File</label>
                         <input type="file" id="generateImageFile" accept=".png">
@@ -342,21 +351,38 @@
                         <label>Prompt</label>
                         <input type="text" id="generatePrompt" placeholder="a cute cat">
                     </div>
-                    <button class="btn-primary" onclick="generateModel()">Generate Model</button>
+                    <button class="btn-primary" onclick="generateModel()">Generate Model (Get Job ID)</button>
                     <div class="response" id="generateModelResponse"></div>
                 </div>
 
                 <!-- Job 상태 조회 -->
                 <div class="api-group">
                     <h3>GET /api/models/jobs/:job_id - Check Job Status (JWT Required)</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: -5px;">
+                        작업 상태: <span style="color: #ff9800;">queued</span> → <span style="color: #2196f3;">processing</span> → <span style="color: #4caf50;">completed</span> / <span style="color: #f44336;">failed</span>
+                    </p>
                     <div class="input-group">
                         <label>Job ID</label>
                         <input type="text" id="jobId" placeholder="uuid-from-generate-response">
                     </div>
-                    <button class="btn-primary" onclick="checkJobStatus()">Check Status</button>
+                    <button class="btn-primary" onclick="checkJobStatus()">Check Status Once</button>
                     <button class="btn-secondary" onclick="startPolling()">Start Auto-Polling (3s)</button>
                     <button class="btn-warning" onclick="stopPolling()">Stop Polling</button>
                     <div class="response" id="jobStatusResponse"></div>
+                </div>
+
+                <!-- 모델 다운로드 (completed 후) -->
+                <div class="api-group">
+                    <h3>Download Model - Use download_url from Job Status</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: -5px;">
+                        작업이 completed 상태가 되면 job status 응답에서 download_url을 받아 다운로드합니다.
+                    </p>
+                    <div class="input-group">
+                        <label>Download URL (from completed job status)</label>
+                        <input type="text" id="downloadUrl" placeholder="Copy download_url from job status response">
+                    </div>
+                    <button class="btn-secondary" onclick="downloadFromUrl()">Open Download URL</button>
+                    <div class="response" id="downloadUrlResponse"></div>
                 </div>
 
                 <!-- 모델 리스트 -->
@@ -1253,6 +1279,13 @@
 
             const response = await apiCall(`${getResourceServerUrl()}/api/models/jobs/${jobId}`);
             displayResponse('jobStatusResponse', response);
+
+            // Auto-fill download_url if completed
+            if (response.data && response.data.job && response.data.job.status === 'completed') {
+                if (response.data.job.download_url) {
+                    document.getElementById('downloadUrl').value = response.data.job.download_url;
+                }
+            }
         }
 
         function startPolling() {
@@ -1275,11 +1308,25 @@
 
                 // Stop polling if completed or failed
                 if (response.data && response.data.job) {
-                    if (response.data.job.status === 'completed' || response.data.job.status === 'failed') {
+                    const jobStatus = response.data.job.status;
+
+                    if (jobStatus === 'completed') {
+                        stopPolling();
+
+                        // Auto-fill download_url
+                        if (response.data.job.download_url) {
+                            document.getElementById('downloadUrl').value = response.data.job.download_url;
+                        }
+
+                        displayResponse('jobStatusResponse', {
+                            ...response,
+                            message: `✅ Polling stopped. Job completed! Download URL is ready.`
+                        });
+                    } else if (jobStatus === 'failed') {
                         stopPolling();
                         displayResponse('jobStatusResponse', {
                             ...response,
-                            message: `Polling stopped. Job ${response.data.job.status}.`
+                            message: `❌ Polling stopped. Job failed.`
                         });
                     }
                 }
@@ -1291,6 +1338,24 @@
                 clearInterval(pollingInterval);
                 pollingInterval = null;
             }
+        }
+
+        function downloadFromUrl() {
+            const downloadUrl = document.getElementById('downloadUrl').value;
+
+            if (!downloadUrl) {
+                displayResponse('downloadUrlResponse', { error: 'Download URL is required' });
+                return;
+            }
+
+            displayResponse('downloadUrlResponse', {
+                message: 'Opening download URL in new tab...',
+                url: downloadUrl,
+                note: 'If download does not start automatically, check your browser settings.'
+            });
+
+            // Open in new window
+            window.open(downloadUrl, '_blank');
         }
 
         async function getAIModelInfo() {

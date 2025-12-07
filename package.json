@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "start": "...",
+    "copy-api": "node sync-to-unreal.js"
+  },
+  "dependencies": {
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "dotenv": "^17.2.3"
+  }
+}
