@@ -47,8 +47,8 @@ module.exports = {
       //    - Redis Adapter 없이는 클러스터 모드 불가 (WebSocket 연결이 특정 인스턴스에 고정됨)
       //    - Redis Adapter 있으면 클러스터 모드 안전 (인스턴스 간 이벤트 브로드캐스트 가능)
       // 현재: Socket.io 미사용이므로 클러스터 모드 가능하나, 메모리 절약 위해 1개 운영
-      instances: 2,
-      exec_mode: 'cluster',      // Redis 공유 저장소 덕분에 안전
+      instances: 1,
+      exec_mode: 'fork',      // Redis 공유 저장소 덕분에 안전
 
       // [메모리 보호]
       // 2개 인스턴스로 Login 서버와 동일하게 운영

@@ -503,8 +503,8 @@
                     </div>
                     <div class="input-group">
                         <label>Accessories JSON Array</label>
-                        <textarea id="presetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
-                        <div class="example-box" onclick="copyToInput('presetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                        <textarea id="presetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"relativeScale":1.0,"modelUrl":"/models/hat.glb"}]'></textarea>
+                        <div class="example-box" onclick="copyToInput('presetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;relativeScale&quot;:1.0,&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"relativeScale":1.0,"modelUrl":"/models/hat.glb"}]</div>
                     </div>
                     <div class="input-group">
                         <label>
@@ -543,8 +543,8 @@
                     </div>
                     <div class="input-group">
                         <label>Accessories JSON Array (Optional)</label>
-                        <textarea id="updatePresetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
-                        <div class="example-box" onclick="copyToInput('updatePresetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
+                        <textarea id="updatePresetAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"relativeScale":1.0,"modelUrl":"/models/hat.glb"}]'></textarea>
+                        <div class="example-box" onclick="copyToInput('updatePresetAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;relativeScale&quot;:1.0,&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"relativeScale":1.0,"modelUrl":"/models/hat.glb"}]</div>
                     </div>
                     <div class="input-group">
                         <label>
@@ -818,6 +818,23 @@
                     </div>
                     <button class="btn-warning" onclick="updateAccessories()">Update All Accessories</button>
                     <div class="response" id="updateAccessoriesResponse"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>개발 전용 콘서트 API</h2>
+                <p style="background: #ffebee; padding: 10px; border-radius: 4px; font-size: 12px; color: #c62828; margin-bottom: 15px;">
+                    <strong>⚠️ 경고:</strong> 이 API는 개발 환경에서만 사용 가능합니다. 프로덕션 환경에서는 403 에러가 반환됩니다.
+                </p>
+
+                <!-- Expire All Concerts -->
+                <div class="api-group">
+                    <h3>POST /api/concert/dev/expire-all - Expire All Concert Sessions (JWT Required, Development Only)</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: -5px;">
+                        Redis에 저장된 모든 콘서트 세션을 일괄 삭제합니다. 테스트 데이터 정리용입니다.
+                    </p>
+                    <button class="btn-danger" onclick="expireAllConcerts()">🗑️ Expire All Concerts</button>
+                    <div class="response" id="expireAllConcertsResponse"></div>
                 </div>
             </div>
         </div>
@@ -1959,6 +1976,23 @@
                 method: 'DELETE'
             });
             displayResponse('deletePresetResponse', response);
+        }
+
+        // 개발 전용 콘서트 세션 API
+        async function expireAllConcerts() {
+            if (!confirm('⚠️ 모든 콘서트 세션을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 개발 환경에서만 작동합니다.')) {
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/concert/dev/expire-all`, {
+                method: 'POST'
+            });
+            displayResponse('expireAllConcertsResponse', response);
+
+            // 성공 시 사용자 친화적 메시지 표시
+            if (response.data && response.data.success) {
+                console.log(`✓ ${response.data.expiredCount}개의 콘서트가 삭제되었습니다.`);
+            }
         }
 
         // 입력 필드에 예제를 복사
