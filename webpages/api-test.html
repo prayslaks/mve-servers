@@ -1192,8 +1192,8 @@
                 try {
                     // 상대 경로인 경우 (로컬) - fetch로 blob 가져와서 재생
                     if (audioUrl.startsWith('/')) {
-                        const audioResponse = await fetch(`${getResourceServer()}${audioUrl}`, {
-                            headers: { 'Authorization': `Bearer ${token}` }
+                        const audioResponse = await fetch(`${getResourceServerUrl()}${audioUrl}`, {
+                            headers: { 'Authorization': `Bearer ${jwtToken}` }
                         });
                         const blob = await audioResponse.blob();
                         audioUrl = URL.createObjectURL(blob);
