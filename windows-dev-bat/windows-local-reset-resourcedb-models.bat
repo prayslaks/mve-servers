@@ -13,6 +13,7 @@ REM 사용법:
 REM   dev-reset-resourcedb-models.bat
 
 cd /d "%~dp0"
+cd ..
 
 echo.
 echo ============================================================

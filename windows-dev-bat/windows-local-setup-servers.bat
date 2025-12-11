@@ -1,5 +1,6 @@
 @echo off
 cd /d "%~dp0"
+cd ..
 
 echo ========================================
 echo Setup MVE servers on Windows...
