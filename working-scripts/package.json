@@ -1,0 +1,18 @@
+{
+  "name": "mve-working-scripts",
+  "version": "1.0.0",
+  "description": "MVE 서버 관리 및 언리얼 동기화 스크립트 모음",
+  "scripts": {
+    "sync": "node sync-api-to-unreal.js",
+    "analyze": "node analyze-swagger-changes.js",
+    "copy-docs": "node generate-and-copy-docs.js"
+  },
+  "keywords": [
+    "mve",
+    "swagger",
+    "unreal",
+    "api-sync"
+  ],
+  "author": "MVE Development Team",
+  "license": "ISC"
+}

@@ -1,0 +1,535 @@
+{
+  "summary": {
+    "totalCodes": 71,
+    "uniqueCodes": 40,
+    "filesWithCodes": 4,
+    "totalFilesScanned": 7,
+    "generatedAt": "2025-12-11T05:48:44.731Z"
+  },
+  "statistics": [
+    {
+      "code": "INTERNAL_SERVER_ERROR",
+      "count": 8,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 180
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 449
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 705
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1039
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1290
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1389
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1596
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1751
+        }
+      ]
+    },
+    {
+      "code": "DATABASE_ERROR",
+      "count": 7,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 172
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 441
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 697
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1022
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1264
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1588
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1743
+        }
+      ]
+    },
+    {
+      "code": "INVALID_INPUT_TYPE",
+      "count": 5,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 126
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 320
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 614
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 889
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1179
+        }
+      ]
+    },
+    {
+      "code": "INVALID_EMAIL_FORMAT",
+      "count": 3,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 137
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 331
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 900
+        }
+      ]
+    },
+    {
+      "code": "MISSING_FIELDS",
+      "count": 3,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 601
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 870
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1162
+        }
+      ]
+    },
+    {
+      "code": "USER_NOT_FOUND",
+      "count": 3,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1196
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1533
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1713
+        }
+      ]
+    },
+    {
+      "code": "SERVER_CONFIG_ERROR",
+      "count": 2,
+      "locations": [
+        {
+          "file": "middleware\\auth.js",
+          "line": 48
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1222
+        }
+      ]
+    },
+    {
+      "code": "MISSING_EMAIL",
+      "count": 2,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 117
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 311
+        }
+      ]
+    },
+    {
+      "code": "INVALID_CODE_FORMAT",
+      "count": 2,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 624
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 910
+        }
+      ]
+    },
+    {
+      "code": "CODE_NOT_FOUND",
+      "count": 2,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 638
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 934
+        }
+      ]
+    },
+    {
+      "code": "INVALID_CODE",
+      "count": 2,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 669
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 946
+        }
+      ]
+    },
+    {
+      "code": "ENCRYPTION_ERROR",
+      "count": 2,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1032
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1274
+        }
+      ]
+    },
+    {
+      "code": "INVALID_PASSWORD",
+      "count": 2,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1212
+        },
+        {
+          "file": "routes\\auth.js",
+          "line": 1548
+        }
+      ]
+    },
+    {
+      "code": "VALUE",
+      "count": 2,
+      "locations": [
+        {
+          "file": "working-scripts\\analyze-response-codes.js",
+          "line": 19
+        },
+        {
+          "file": "working-scripts\\analyze-response-codes.js",
+          "line": 19
+        }
+      ]
+    },
+    {
+      "code": "NO_AUTH_HEADER",
+      "count": 1,
+      "locations": [
+        {
+          "file": "middleware\\auth.js",
+          "line": 17
+        }
+      ]
+    },
+    {
+      "code": "INVALID_AUTH_FORMAT",
+      "count": 1,
+      "locations": [
+        {
+          "file": "middleware\\auth.js",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "code": "NO_TOKEN",
+      "count": 1,
+      "locations": [
+        {
+          "file": "middleware\\auth.js",
+          "line": 38
+        }
+      ]
+    },
+    {
+      "code": "TOKEN_EXPIRED",
+      "count": 1,
+      "locations": [
+        {
+          "file": "middleware\\auth.js",
+          "line": 66
+        }
+      ]
+    },
+    {
+      "code": "INVALID_TOKEN",
+      "count": 1,
+      "locations": [
+        {
+          "file": "middleware\\auth.js",
+          "line": 76
+        }
+      ]
+    },
+    {
+      "code": "TOKEN_VERIFICATION_FAILED",
+      "count": 1,
+      "locations": [
+        {
+          "file": "middleware\\auth.js",
+          "line": 84
+        }
+      ]
+    },
+    {
+      "code": "EMAIL_ALREADY_EXISTS",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 347
+        }
+      ]
+    },
+    {
+      "code": "TOO_MANY_REQUESTS",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 362
+        }
+      ]
+    },
+    {
+      "code": "VERIFICATION_CODE_SENT",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 416
+        }
+      ]
+    },
+    {
+      "code": "EMAIL_SEND_ERROR",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 433
+        }
+      ]
+    },
+    {
+      "code": "TOO_MANY_ATTEMPTS",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 653
+        }
+      ]
+    },
+    {
+      "code": "EMAIL_VERIFIED",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 682
+        }
+      ]
+    },
+    {
+      "code": "WEAK_PASSWORD",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 920
+        }
+      ]
+    },
+    {
+      "code": "USER_ALREADY_EXISTS",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 965
+        }
+      ]
+    },
+    {
+      "code": "USER_CREATED",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 994
+        }
+      ]
+    },
+    {
+      "code": "DUPLICATE_ENTRY",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1014
+        }
+      ]
+    },
+    {
+      "code": "LOGIN_SUCCESS",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1243
+        }
+      ]
+    },
+    {
+      "code": "TOKEN_GENERATION_ERROR",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1283
+        }
+      ]
+    },
+    {
+      "code": "LOGOUT_SUCCESS",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1376
+        }
+      ]
+    },
+    {
+      "code": "MISSING_PASSWORD",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1517
+        }
+      ]
+    },
+    {
+      "code": "ACCOUNT_DELETED",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1573
+        }
+      ]
+    },
+    {
+      "code": "PROFILE_RETRIEVED",
+      "count": 1,
+      "locations": [
+        {
+          "file": "routes\\auth.js",
+          "line": 1725
+        }
+      ]
+    },
+    {
+      "code": "REDIS_UNAVAILABLE",
+      "count": 1,
+      "locations": [
+        {
+          "file": "server.js",
+          "line": 31
+        }
+      ]
+    },
+    {
+      "code": "HEALTH_CHECK_OK",
+      "count": 1,
+      "locations": [
+        {
+          "file": "server.js",
+          "line": 41
+        }
+      ]
+    },
+    {
+      "code": "HEALTH_CHECK_FAILED",
+      "count": 1,
+      "locations": [
+        {
+          "file": "server.js",
+          "line": 51
+        }
+      ]
+    },
+    {
+      "code": "...",
+      "count": 1,
+      "locations": [
+        {
+          "file": "working-scripts\\analyze-response-codes.js",
+          "line": 5
+        }
+      ]
+    }
+  ]
+}

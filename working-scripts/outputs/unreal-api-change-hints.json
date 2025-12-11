@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "generatedAt": "2025-12-11T05:48:45.362Z",
+    "version": "1.0.0",
+    "description": "Swagger Spec 변경사항 기반 언리얼 C++ 코드 변경 힌트"
+  },
+  "warning": {
+    "ko": "⚠️ 이 힌트는 자동 생성된 것으로, 지나치게 신뢰하지 마세요. 실제 코드베이스를 우선으로 고려하고, 문제가 있을 경우 반드시 사용자에게 보고하세요.",
+    "en": "⚠️ This hint is auto-generated. Do not over-rely on it. Prioritize the actual codebase and report any issues to the user.",
+    "important": [
+      "실제 언리얼 프로젝트의 기존 코드 구조와 패턴을 먼저 확인하세요",
+      "힌트는 참고용이며, 코드베이스와 충돌 시 코드베이스를 우선하세요",
+      "중첩된 객체나 복잡한 타입은 수동 검토가 필요합니다",
+      "변경 적용 전 사용자에게 변경 사항을 요약하여 보고하세요",
+      "컴파일 에러나 로직 문제 발생 시 즉시 사용자에게 알리세요"
+    ]
+  },
+  "servers": [
+    {
+      "serverName": "Login Server",
+      "summary": {
+        "totalEndpoints": 8,
+        "addedEndpoints": 0,
+        "removedEndpoints": 0,
+        "modifiedEndpoints": 0,
+        "unchangedEndpoints": 8
+      },
+      "changes": {
+        "newEndpoints": [],
+        "removedEndpoints": [],
+        "modifiedEndpoints": []
+      }
+    },
+    {
+      "serverName": "Resource Server",
+      "summary": {
+        "totalEndpoints": 38,
+        "addedEndpoints": 0,
+        "removedEndpoints": 0,
+        "modifiedEndpoints": 0,
+        "unchangedEndpoints": 38
+      },
+      "changes": {
+        "newEndpoints": [],
+        "removedEndpoints": [],
+        "modifiedEndpoints": []
+      }
+    }
+  ]
+}

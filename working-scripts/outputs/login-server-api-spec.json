@@ -1,0 +1,1243 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "MVE Login Server API",
+    "version": "1.0.0",
+    "description": "MVE (Meta Virtual Environment) Login Server API\n\n이 API는 사용자 인증 기능을 제공합니다:\n- 🔐 회원가입 (이메일 인증)\n- 🔑 로그인 (JWT 토큰 발급)\n- 👤 프로필 조회\n- ✉️ 이메일 인증번호 발송 및 검증\n\n**토큰 발급**: 로그인 성공 시 JWT 토큰이 발급됩니다.\n**토큰 사용**: Resource Server API 호출 시 Authorization 헤더에 포함하세요.",
+    "contact": {
+      "name": "MVE Development Team",
+      "url": "https://github.com/prayslaks"
+    },
+    "license": {
+      "name": "ISC",
+      "url": "https://opensource.org/licenses/ISC"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "로컬 개발 서버"
+    },
+    {
+      "url": "http://your-ec2-public-ip",
+      "description": "AWS EC2 프로덕션 서버 (HTTP)"
+    },
+    {
+      "url": "https://your-domain.com",
+      "description": "AWS EC2 프로덕션 서버 (HTTPS)"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "사용자 인증 및 회원가입 API"
+    },
+    {
+      "name": "Email Verification",
+      "description": "이메일 인증번호 발송 및 검증 API"
+    },
+    {
+      "name": "User Profile",
+      "description": "사용자 프로필 관리 API (JWT 인증 필요)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "MVE Login Server에서 발급받은 JWT 토큰을 입력하세요."
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/auth/check-email": {
+      "post": {
+        "summary": "이메일 중복 확인",
+        "description": "회원가입 전 이메일 중복 여부를 확인합니다",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "test@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "이메일 사용 가능 또는 중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "EMAIL_AVAILABLE",
+                      "description": "EMAIL_AVAILABLE (사용 가능) 또는 EMAIL_ALREADY_EXISTS (중복)"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Email is available"
+                    },
+                    "exists": {
+                      "type": "boolean",
+                      "example": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INVALID_EMAIL_FORMAT"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid email format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INTERNAL_SERVER_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/send-verification": {
+      "post": {
+        "summary": "이메일 인증번호 발송",
+        "description": "회원가입 시 이메일로 6자리 인증번호를 발송합니다 (5분 유효, 1분 내 재전송 제한)",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "test@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "인증번호 발송 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "VERIFICATION_CODE_SENT"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Verification code sent to email"
+                    },
+                    "expiresIn": {
+                      "type": "integer",
+                      "description": "유효 시간 (초)",
+                      "example": 300
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INVALID_EMAIL_FORMAT"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid email format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "이미 등록된 이메일",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "EMAIL_ALREADY_EXISTS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Email is already registered"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "재전송 제한 (1분 이내)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "TOO_MANY_REQUESTS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Please wait before requesting another code"
+                    },
+                    "retryAfter": {
+                      "type": "integer",
+                      "example": 60
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INTERNAL_SERVER_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/verify-code": {
+      "post": {
+        "summary": "인증번호 검증",
+        "description": "이메일로 받은 6자리 인증번호를 검증합니다 (최대 5회 시도)",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "code"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "test@example.com"
+                  },
+                  "code": {
+                    "type": "string",
+                    "pattern": "^\\d{6}$",
+                    "description": "6자리 인증번호",
+                    "example": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "인증번호 검증 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "EMAIL_VERIFIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Email verified successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INVALID_CODE_FORMAT"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Code must be 6 digits"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증번호 불일치",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INVALID_CODE"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid verification code"
+                    },
+                    "attemptsRemaining": {
+                      "type": "integer",
+                      "example": 4
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "인증번호 없음 또는 만료됨",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "CODE_NOT_FOUND"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "No verification code found or expired"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "시도 횟수 초과",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "TOO_MANY_ATTEMPTS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Too many failed attempts. Please request a new code."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INTERNAL_SERVER_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/signup": {
+      "post": {
+        "summary": "회원가입",
+        "description": "이메일 인증 후 새 사용자 계정을 생성합니다",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password",
+                  "code"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "test@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "example": "password123"
+                  },
+                  "code": {
+                    "type": "string",
+                    "pattern": "^\\d{6}$",
+                    "description": "이메일로 받은 6자리 인증번호",
+                    "example": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "회원가입 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "USER_CREATED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User created"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "test@example.com"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "WEAK_PASSWORD"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Password must be at least 6 characters long"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증번호 불일치",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INVALID_CODE"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid verification code"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "인증번호 없음 또는 만료됨",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "CODE_NOT_FOUND"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "No verification code found or expired. Please request a new code."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "이메일 중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "USER_ALREADY_EXISTS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Email already in use"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INTERNAL_SERVER_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "로그인",
+        "description": "이메일과 비밀번호로 로그인하여 JWT 토큰을 발급받습니다",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "test@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "로그인 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "LOGIN_SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Login successful"
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "JWT 인증 토큰",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "test@example.com"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_FIELDS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Email and password required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 (잘못된 이메일 또는 비밀번호)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INVALID_PASSWORD"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid credentials"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INTERNAL_SERVER_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "로그아웃",
+        "description": "로그아웃을 수행합니다 (클라이언트에서 토큰 삭제 필요)",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "로그아웃 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "LOGOUT_SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Logout successful. Please delete the token on client side."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INTERNAL_SERVER_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/withdraw": {
+      "delete": {
+        "summary": "회원 탈퇴",
+        "description": "비밀번호 확인 후 계정을 삭제합니다 (복구 불가능)",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "현재 비밀번호",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "회원 탈퇴 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "ACCOUNT_DELETED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Account deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_PASSWORD"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Password is required for account deletion"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "비밀번호 불일치 또는 인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INVALID_PASSWORD"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid password"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "USER_NOT_FOUND"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INTERNAL_SERVER_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/profile": {
+      "get": {
+        "summary": "프로필 조회",
+        "description": "로그인한 사용자의 프로필 정보를 조회합니다",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "프로필 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PROFILE_RETRIEVED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Profile retrieved successfully"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "test@example.com"
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-01-01T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access denied"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "USER_NOT_FOUND"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INTERNAL_SERVER_ERROR"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
