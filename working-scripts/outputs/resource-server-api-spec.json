@@ -59,6 +59,316 @@
       }
     },
     "schemas": {
+      "Vector3D": {
+        "type": "object",
+        "description": "3D 벡터 (위치)",
+        "required": [
+          "x",
+          "y",
+          "z"
+        ],
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "X 좌표",
+            "example": 0
+          },
+          "y": {
+            "type": "number",
+            "description": "Y 좌표",
+            "example": 0
+          },
+          "z": {
+            "type": "number",
+            "description": "Z 좌표",
+            "example": 0
+          }
+        }
+      },
+      "Rotator": {
+        "type": "object",
+        "description": "3D 회전 (Pitch, Yaw, Roll)",
+        "required": [
+          "pitch",
+          "yaw",
+          "roll"
+        ],
+        "properties": {
+          "pitch": {
+            "type": "number",
+            "description": "Pitch (상하 회전)",
+            "example": 0
+          },
+          "yaw": {
+            "type": "number",
+            "description": "Yaw (좌우 회전)",
+            "example": 0
+          },
+          "roll": {
+            "type": "number",
+            "description": "Roll (롤 회전)",
+            "example": 0
+          }
+        }
+      },
+      "Accessory": {
+        "type": "object",
+        "description": "아바타 액세서리",
+        "required": [
+          "socketName",
+          "relativeLocation",
+          "relativeRotation",
+          "modelUrl"
+        ],
+        "properties": {
+          "socketName": {
+            "type": "string",
+            "description": "소켓 이름",
+            "example": "head_socket"
+          },
+          "relativeLocation": {
+            "$ref": "#/components/schemas/Vector3D",
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "format": "float"
+              },
+              "y": {
+                "type": "number",
+                "format": "float"
+              },
+              "z": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          },
+          "relativeRotation": {
+            "$ref": "#/components/schemas/Rotator",
+            "type": "object",
+            "properties": {
+              "pitch": {
+                "type": "number",
+                "format": "float"
+              },
+              "yaw": {
+                "type": "number",
+                "format": "float"
+              },
+              "roll": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          },
+          "modelUrl": {
+            "type": "string",
+            "description": "3D 모델 URL",
+            "example": "/models/hat.glb"
+          },
+          "relativeScale": {
+            "type": "number",
+            "format": "float",
+            "example": 1
+          }
+        }
+      },
+      "AccessoryPreset": {
+        "type": "object",
+        "description": "액세서리 프리셋",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "프리셋 ID",
+            "example": 1
+          },
+          "userId": {
+            "type": "integer",
+            "description": "소유자 사용자 ID",
+            "example": 1
+          },
+          "presetName": {
+            "type": "string",
+            "description": "프리셋 이름",
+            "example": "My Preset"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "프리셋 설명",
+            "example": "My favorite accessories"
+          },
+          "accessories": {
+            "type": "array",
+            "description": "액세서리 목록",
+            "items": {
+              "$ref": "#/components/schemas/Accessory"
+            }
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "공개 여부",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성 시간"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정 시간"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConcertSong": {
+        "type": "object",
+        "description": "콘서트 노래",
+        "required": [
+          "songNum",
+          "audioId",
+          "streamUrl",
+          "stageDirectionId"
+        ],
+        "properties": {
+          "songNum": {
+            "type": "integer",
+            "description": "곡 번호",
+            "example": 1
+          },
+          "audioId": {
+            "type": "integer",
+            "description": "오디오 ID",
+            "example": 12345
+          },
+          "streamUrl": {
+            "type": "string",
+            "description": "스트림 URL",
+            "example": "https://example.com/stream/song1.mp3"
+          },
+          "stageDirectionId": {
+            "type": "integer",
+            "description": "무대 연출 ID",
+            "example": 1
+          }
+        }
+      },
+      "ListenServer": {
+        "type": "object",
+        "description": "리슨 서버 정보",
+        "required": [
+          "localIP",
+          "port"
+        ],
+        "properties": {
+          "localIP": {
+            "type": "string",
+            "description": "로컬 IP 주소",
+            "example": "192.168.0.100"
+          },
+          "port": {
+            "type": "integer",
+            "description": "포트 번호",
+            "example": 7777
+          },
+          "publicIP": {
+            "type": "string",
+            "nullable": true,
+            "description": "공인 IP 주소",
+            "example": "203.0.113.1"
+          },
+          "publicPort": {
+            "type": "integer",
+            "nullable": true,
+            "description": "공인 포트 번호",
+            "example": 7777
+          }
+        }
+      },
+      "ConcertInfo": {
+        "type": "object",
+        "description": "콘서트 정보",
+        "properties": {
+          "roomId": {
+            "type": "string",
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
+          },
+          "studioUserId": {
+            "type": "integer",
+            "description": "스튜디오 사용자 ID",
+            "example": 1
+          },
+          "studioName": {
+            "type": "string",
+            "description": "스튜디오 이름",
+            "example": "studio@example.com"
+          },
+          "concertName": {
+            "type": "string",
+            "description": "콘서트 이름",
+            "example": "My Concert"
+          },
+          "songs": {
+            "type": "array",
+            "description": "노래 목록",
+            "items": {
+              "$ref": "#/components/schemas/ConcertSong"
+            }
+          },
+          "accessories": {
+            "type": "array",
+            "description": "액세서리 목록",
+            "items": {
+              "$ref": "#/components/schemas/Accessory"
+            }
+          },
+          "maxAudience": {
+            "type": "integer",
+            "description": "최대 관객 수",
+            "example": 100
+          },
+          "createdAt": {
+            "type": "integer",
+            "description": "생성 시간 (Unix timestamp)",
+            "example": 1702345678901
+          },
+          "listenServer": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ListenServer"
+              }
+            ],
+            "nullable": true,
+            "description": "리슨 서버 정보"
+          },
+          "isOpen": {
+            "type": "boolean",
+            "description": "개방 여부",
+            "example": true
+          },
+          "currentSong": {
+            "type": "integer",
+            "description": "현재 재생 중인 곡 번호",
+            "example": 0
+          },
+          "currentAudience": {
+            "type": "integer",
+            "description": "현재 관객 수",
+            "example": 5
+          }
+        }
+      },
       "AudioFile": {
         "type": "object",
         "properties": {
@@ -218,7 +528,7 @@
                   "accessories": {
                     "type": "array",
                     "items": {
-                      "type": "object"
+                      "$ref": "#/components/schemas/Accessory"
                     }
                   },
                   "description": {
@@ -235,7 +545,14 @@
         },
         "responses": {
           "200": {
-            "description": "프리셋 저장 성공"
+            "description": "프리셋 저장 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessoryPreset"
+                }
+              }
+            }
           },
           "400": {
             "description": "잘못된 요청"
@@ -286,7 +603,7 @@
                     "presets": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/AccessoryPreset"
                       }
                     }
                   }
@@ -338,7 +655,7 @@
                       "type": "boolean"
                     },
                     "preset": {
-                      "type": "object"
+                      "$ref": "#/components/schemas/AccessoryPreset"
                     }
                   }
                 }
@@ -396,7 +713,7 @@
                   "accessories": {
                     "type": "array",
                     "items": {
-                      "type": "object"
+                      "$ref": "#/components/schemas/Accessory"
                     }
                   },
                   "isPublic": {
@@ -409,7 +726,14 @@
         },
         "responses": {
           "200": {
-            "description": "프리셋 업데이트 성공"
+            "description": "프리셋 업데이트 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessoryPreset"
+                }
+              }
+            }
           },
           "400": {
             "description": "잘못된 요청"
@@ -892,37 +1216,28 @@
                 "properties": {
                   "concertName": {
                     "type": "string",
+                    "description": "콘서트 이름",
                     "example": "My Concert"
                   },
                   "songs": {
                     "type": "array",
+                    "description": "노래 목록 배열",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "songNum": {
-                          "type": "integer"
-                        },
-                        "audioId": {
-                          "type": "integer"
-                        },
-                        "streamUrl": {
-                          "type": "string"
-                        },
-                        "stageDirectionId": {
-                          "type": "integer"
-                        }
-                      }
+                      "$ref": "#/components/schemas/ConcertSong"
                     }
                   },
                   "accessories": {
                     "type": "array",
+                    "description": "액세서리 목록 배열",
                     "items": {
-                      "type": "object"
+                      "$ref": "#/components/schemas/Accessory"
                     }
                   },
                   "maxAudience": {
                     "type": "integer",
-                    "default": 100
+                    "description": "최대 관객 수",
+                    "default": 100,
+                    "example": 100
                   }
                 }
               }
@@ -931,13 +1246,110 @@
         },
         "responses": {
           "200": {
-            "description": "콘서트 생성 성공"
+            "description": "콘서트 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Operation successful"
+                    },
+                    "roomId": {
+                      "type": "string",
+                      "description": "생성된 콘서트 방 ID",
+                      "example": "concert_1702345678901_abc123def"
+                    },
+                    "expiresIn": {
+                      "type": "integer",
+                      "description": "만료 시간 (초)",
+                      "example": 3600
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_FIELDS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "concertName is required"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 에러",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "CREATE_FAILED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Error message"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -963,15 +1375,27 @@
                   "type": "object",
                   "properties": {
                     "success": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Operation successful"
                     },
                     "count": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "콘서트 개수",
+                      "example": 2
                     },
                     "concerts": {
                       "type": "array",
+                      "description": "콘서트 목록",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/ConcertInfo"
                       }
                     }
                   }
@@ -980,10 +1404,52 @@
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "LIST_FAILED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Error message"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1008,7 +1474,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "requestBody": {
@@ -1023,7 +1490,8 @@
                 "properties": {
                   "clientId": {
                     "type": "integer",
-                    "description": "참가한 클라이언트의 사용자 ID"
+                    "description": "참가한 클라이언트의 사용자 ID",
+                    "example": 123
                   }
                 }
               }
@@ -1032,16 +1500,100 @@
         },
         "responses": {
           "200": {
-            "description": "참가 성공"
+            "description": "참가 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Client joined concert successfully"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_CLIENT_ID"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "clientId is required"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오 리슨 서버만 호출 가능)"
+            "description": "권한 없음 (스튜디오 리슨 서버만 호출 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only the studio listen server can register a client."
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1066,7 +1618,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "requestBody": {
@@ -1081,7 +1634,8 @@
                 "properties": {
                   "clientId": {
                     "type": "integer",
-                    "description": "퇴장한 클라이언트의 사용자 ID"
+                    "description": "퇴장한 클라이언트의 사용자 ID",
+                    "example": 123
                   }
                 }
               }
@@ -1090,16 +1644,100 @@
         },
         "responses": {
           "200": {
-            "description": "퇴장 성공"
+            "description": "퇴장 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Client left concert successfully"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_CLIENT_ID"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "clientId is required"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오 리슨 서버만 호출 가능)"
+            "description": "권한 없음 (스튜디오 리슨 서버만 호출 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only the studio listen server can unregister a client."
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1124,7 +1762,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "responses": {
@@ -1136,10 +1775,19 @@
                   "type": "object",
                   "properties": {
                     "success": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Operation successful"
                     },
                     "concert": {
-                      "type": "object"
+                      "$ref": "#/components/schemas/ConcertInfo"
                     }
                   }
                 }
@@ -1147,10 +1795,52 @@
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "콘서트를 찾을 수 없음"
+            "description": "콘서트를 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "CONCERT_NOT_FOUND"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Concert not found"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1175,7 +1865,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "requestBody": {
@@ -1183,43 +1874,123 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "songNum",
-                  "audioId",
-                  "streamUrl",
-                  "stageDirectionId"
-                ],
-                "properties": {
-                  "songNum": {
-                    "type": "integer"
-                  },
-                  "audioId": {
-                    "type": "integer"
-                  },
-                  "streamUrl": {
-                    "type": "string"
-                  },
-                  "stageDirectionId": {
-                    "type": "integer"
-                  }
-                }
+                "$ref": "#/components/schemas/ConcertSong"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "노래 추가 성공"
+            "description": "노래 추가 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Song added successfully"
+                    },
+                    "songs": {
+                      "type": "array",
+                      "description": "업데이트된 노래 목록",
+                      "items": {
+                        "$ref": "#/components/schemas/ConcertSong"
+                      }
+                    },
+                    "currentSong": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/ConcertSong"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "현재 재생 중인 곡"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_FIELDS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "songNum, audioId, streamUrl, stageDirectionId are required"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오만 가능)"
+            "description": "권한 없음 (스튜디오만 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only studio can add songs"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1244,7 +2015,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           },
           {
             "in": "path",
@@ -1253,21 +2025,122 @@
             "schema": {
               "type": "integer"
             },
-            "description": "노래 번호"
+            "description": "노래 번호",
+            "example": 1
           }
         ],
         "responses": {
           "200": {
-            "description": "노래 삭제 성공"
+            "description": "노래 삭제 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Song removed successfully"
+                    },
+                    "songs": {
+                      "type": "array",
+                      "description": "업데이트된 노래 목록",
+                      "items": {
+                        "$ref": "#/components/schemas/ConcertSong"
+                      }
+                    },
+                    "currentSong": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/ConcertSong"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "현재 재생 중인 곡"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "REMOVE_SONG_FAILED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Error message"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오만 가능)"
+            "description": "권한 없음 (스튜디오만 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only studio can remove songs"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1292,7 +2165,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "requestBody": {
@@ -1307,7 +2181,8 @@
                 "properties": {
                   "songNum": {
                     "type": "integer",
-                    "description": "재생할 노래 번호"
+                    "description": "재생할 노래 번호",
+                    "example": 2
                   }
                 }
               }
@@ -1316,16 +2191,104 @@
         },
         "responses": {
           "200": {
-            "description": "곡 변경 성공"
+            "description": "곡 변경 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Song changed successfully"
+                    },
+                    "currentSong": {
+                      "type": "object",
+                      "description": "변경된 현재 곡"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_FIELDS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "songNum is required"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오만 가능)"
+            "description": "권한 없음 (스튜디오만 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only studio can change songs"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1350,7 +2313,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "responses": {
@@ -1362,10 +2326,24 @@
                   "type": "object",
                   "properties": {
                     "success": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Operation successful"
                     },
                     "currentSong": {
-                      "type": "object"
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/ConcertSong"
+                        }
+                      ],
+                      "nullable": true
                     }
                   }
                 }
@@ -1373,13 +2351,76 @@
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "접근 권한 없음"
+            "description": "접근 권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "ACCESS_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Not in concert room"
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "GET_CURRENT_SONG_FAILED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Error message"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1404,7 +2445,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "requestBody": {
@@ -1412,65 +2454,114 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "socketName",
-                  "relativeLocation",
-                  "relativeRotation",
-                  "modelUrl"
-                ],
-                "properties": {
-                  "socketName": {
-                    "type": "string"
-                  },
-                  "relativeLocation": {
-                    "type": "object",
-                    "properties": {
-                      "x": {
-                        "type": "number"
-                      },
-                      "y": {
-                        "type": "number"
-                      },
-                      "z": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "relativeRotation": {
-                    "type": "object",
-                    "properties": {
-                      "pitch": {
-                        "type": "number"
-                      },
-                      "yaw": {
-                        "type": "number"
-                      },
-                      "roll": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "modelUrl": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/components/schemas/Accessory"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "액세서리 추가 성공"
+            "description": "액세서리 추가 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Accessory added successfully"
+                    },
+                    "accessories": {
+                      "type": "array",
+                      "description": "업데이트된 액세서리 목록",
+                      "items": {
+                        "$ref": "#/components/schemas/Accessory"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_FIELDS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "socketName, relativeLocation, relativeRotation, modelUrl are required"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오만 가능)"
+            "description": "권한 없음 (스튜디오만 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only studio can add accessories"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1495,7 +2586,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           },
           {
             "in": "path",
@@ -1504,21 +2596,113 @@
             "schema": {
               "type": "integer"
             },
-            "description": "액세서리 인덱스"
+            "description": "액세서리 인덱스",
+            "example": 0
           }
         ],
         "responses": {
           "200": {
-            "description": "액세서리 삭제 성공"
+            "description": "액세서리 삭제 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Accessory removed successfully"
+                    },
+                    "accessories": {
+                      "type": "array",
+                      "description": "업데이트된 액세서리 목록",
+                      "items": {
+                        "$ref": "#/components/schemas/Accessory"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "REMOVE_ACCESSORY_FAILED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Error message"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오만 가능)"
+            "description": "권한 없음 (스튜디오만 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only studio can remove accessories"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1543,7 +2727,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "requestBody": {
@@ -1558,22 +2743,9 @@
                 "properties": {
                   "accessories": {
                     "type": "array",
+                    "description": "액세서리 목록 배열",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "socketName": {
-                          "type": "string"
-                        },
-                        "relativeLocation": {
-                          "type": "object"
-                        },
-                        "relativeRotation": {
-                          "type": "object"
-                        },
-                        "modelUrl": {
-                          "type": "string"
-                        }
-                      }
+                      "$ref": "#/components/schemas/Accessory"
                     }
                   }
                 }
@@ -1583,16 +2755,107 @@
         },
         "responses": {
           "200": {
-            "description": "액세서리 교체 성공"
+            "description": "액세서리 교체 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Accessories updated successfully"
+                    },
+                    "accessories": {
+                      "type": "array",
+                      "description": "업데이트된 액세서리 목록",
+                      "items": {
+                        "$ref": "#/components/schemas/Accessory"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "INVALID_ACCESSORIES"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "accessories must be an array"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오만 가능)"
+            "description": "권한 없음 (스튜디오만 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only studio can update accessories"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1617,7 +2880,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "requestBody": {
@@ -1625,47 +2889,110 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "localIP",
-                  "port"
-                ],
-                "properties": {
-                  "localIP": {
-                    "type": "string",
-                    "description": "로컬 IP 주소",
-                    "example": "192.168.0.100"
-                  },
-                  "port": {
-                    "type": "integer",
-                    "description": "포트 번호",
-                    "example": 7777
-                  },
-                  "publicIP": {
-                    "type": "string",
-                    "description": "공인 IP 주소 (선택)"
-                  },
-                  "publicPort": {
-                    "type": "integer",
-                    "description": "공인 포트 번호 (선택)"
-                  }
-                }
+                "$ref": "#/components/schemas/ListenServer"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "리슨 서버 정보 등록 성공"
+            "description": "리슨 서버 정보 등록 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Listen server info updated successfully"
+                    },
+                    "listenServer": {
+                      "$ref": "#/components/schemas/ListenServer"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_FIELDS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "localIP and port are required"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오만 가능)"
+            "description": "권한 없음 (스튜디오만 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only studio can update listen server info"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1690,7 +3017,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "콘서트 방 ID"
+            "description": "콘서트 방 ID",
+            "example": "concert_1702345678901_abc123def"
           }
         ],
         "requestBody": {
@@ -1705,7 +3033,8 @@
                 "properties": {
                   "isOpen": {
                     "type": "boolean",
-                    "description": "개방 여부 (true - 개방, false - 비공개)"
+                    "description": "개방 여부 (true - 개방, false - 비공개)",
+                    "example": true
                   }
                 }
               }
@@ -1714,16 +3043,104 @@
         },
         "responses": {
           "200": {
-            "description": "상태 변경 성공"
+            "description": "상태 변경 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Concert is now open"
+                    },
+                    "isOpen": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "MISSING_FIELDS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "isOpen (boolean) is required"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "UNAUTHORIZED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication failed"
+                    }
+                  }
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오만 가능)"
+            "description": "권한 없음 (스튜디오만 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PERMISSION_DENIED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Only studio can toggle concert open status"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

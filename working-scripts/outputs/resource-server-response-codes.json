@@ -4,7 +4,7 @@
     "uniqueCodes": 63,
     "filesWithCodes": 7,
     "totalFilesScanned": 14,
-    "generatedAt": "2025-12-11T05:48:45.042Z"
+    "generatedAt": "2025-12-11T10:18:04.716Z"
   },
   "statistics": [
     {
@@ -13,23 +13,23 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 97
+          "line": 165
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 169
+          "line": 237
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 240
+          "line": 308
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 353
+          "line": 425
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 449
+          "line": 521
         },
         {
           "file": "routes\\audio.js",
@@ -57,71 +57,71 @@
         },
         {
           "file": "routes\\concert.js",
-          "line": 86
+          "line": 148
         },
         {
           "file": "routes\\concert.js",
-          "line": 143
+          "line": 205
         },
         {
           "file": "routes\\concert.js",
-          "line": 197
+          "line": 297
         },
         {
           "file": "routes\\concert.js",
-          "line": 281
+          "line": 439
         },
         {
           "file": "routes\\concert.js",
-          "line": 360
+          "line": 577
         },
         {
           "file": "routes\\concert.js",
-          "line": 410
+          "line": 664
         },
         {
           "file": "routes\\concert.js",
-          "line": 502
+          "line": 809
         },
         {
           "file": "routes\\concert.js",
-          "line": 571
+          "line": 946
         },
         {
           "file": "routes\\concert.js",
-          "line": 655
+          "line": 1091
         },
         {
           "file": "routes\\concert.js",
-          "line": 725
+          "line": 1213
         },
         {
           "file": "routes\\concert.js",
-          "line": 836
+          "line": 1358
         },
         {
           "file": "routes\\concert.js",
-          "line": 904
+          "line": 1489
         },
         {
           "file": "routes\\concert.js",
-          "line": 997
+          "line": 1636
         },
         {
           "file": "routes\\concert.js",
-          "line": 1098
+          "line": 1778
         },
         {
           "file": "routes\\concert.js",
-          "line": 1182
+          "line": 1923
         },
         {
           "file": "routes\\concert.js",
-          "line": 1257
+          "line": 1998
         },
         {
           "file": "routes\\concert.js",
-          "line": 1325
+          "line": 2066
         },
         {
           "file": "routes\\models.js",
@@ -299,47 +299,47 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 269
+          "line": 427
         },
         {
           "file": "routes\\concert.js",
-          "line": 351
+          "line": 567
         },
         {
           "file": "routes\\concert.js",
-          "line": 490
+          "line": 797
         },
         {
           "file": "routes\\concert.js",
-          "line": 559
+          "line": 934
         },
         {
           "file": "routes\\concert.js",
-          "line": 643
+          "line": 1079
         },
         {
           "file": "routes\\concert.js",
-          "line": 819
+          "line": 1341
         },
         {
           "file": "routes\\concert.js",
-          "line": 892
+          "line": 1477
         },
         {
           "file": "routes\\concert.js",
-          "line": 985
+          "line": 1624
         },
         {
           "file": "routes\\concert.js",
-          "line": 1081
+          "line": 1761
         },
         {
           "file": "routes\\concert.js",
-          "line": 1170
+          "line": 1911
         },
         {
           "file": "routes\\concert.js",
-          "line": 1245
+          "line": 1986
         }
       ]
     },
@@ -349,31 +349,31 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 70
+          "line": 138
         },
         {
           "file": "routes\\concert.js",
-          "line": 99
+          "line": 161
         },
         {
           "file": "routes\\concert.js",
-          "line": 480
+          "line": 787
         },
         {
           "file": "routes\\concert.js",
-          "line": 633
+          "line": 1069
         },
         {
           "file": "routes\\concert.js",
-          "line": 809
+          "line": 1331
         },
         {
           "file": "routes\\concert.js",
-          "line": 1071
+          "line": 1751
         },
         {
           "file": "routes\\concert.js",
-          "line": 1160
+          "line": 1901
         }
       ]
     },
@@ -413,19 +413,19 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 79
+          "line": 147
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 336
+          "line": 408
         },
         {
           "file": "routes\\concert.js",
-          "line": 117
+          "line": 179
         },
         {
           "file": "routes\\concert.js",
-          "line": 975
+          "line": 1614
         }
       ]
     },
@@ -435,19 +435,19 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 258
+          "line": 326
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 371
+          "line": 443
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 466
+          "line": 538
         },
         {
           "file": "routes\\concert.js",
-          "line": 715
+          "line": 1203
         }
       ]
     },
@@ -479,15 +479,15 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 229
+          "line": 297
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 325
+          "line": 397
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 438
+          "line": 510
         }
       ]
     },
@@ -497,15 +497,15 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 250
+          "line": 318
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 363
+          "line": 435
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 458
+          "line": 530
         }
       ]
     },
@@ -551,11 +551,11 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 108
+          "line": 176
         },
         {
           "file": "routes\\accessory-presets.js",
-          "line": 380
+          "line": 452
         }
       ]
     },
@@ -565,11 +565,11 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 178
+          "line": 246
         },
         {
           "file": "routes\\concert.js",
-          "line": 206
+          "line": 306
         }
       ]
     },
@@ -593,11 +593,11 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 259
+          "line": 417
         },
         {
           "file": "routes\\concert.js",
-          "line": 341
+          "line": 557
         }
       ]
     },
@@ -607,7 +607,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 1313
+          "line": 2054
         },
         {
           "file": "routes\\models.js",
@@ -733,7 +733,7 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 115
+          "line": 183
         }
       ]
     },
@@ -743,7 +743,7 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 265
+          "line": 333
         }
       ]
     },
@@ -753,7 +753,7 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 387
+          "line": 459
         }
       ]
     },
@@ -763,7 +763,7 @@
       "locations": [
         {
           "file": "routes\\accessory-presets.js",
-          "line": 473
+          "line": 545
         }
       ]
     },
@@ -803,7 +803,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 108
+          "line": 170
         }
       ]
     },
@@ -813,7 +813,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 152
+          "line": 214
         }
       ]
     },
@@ -823,7 +823,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 288
+          "line": 446
         }
       ]
     },
@@ -833,7 +833,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 364
+          "line": 582
         }
       ]
     },
@@ -843,7 +843,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 418
+          "line": 672
         }
       ]
     },
@@ -853,7 +853,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 511
+          "line": 818
         }
       ]
     },
@@ -863,7 +863,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 580
+          "line": 955
         }
       ]
     },
@@ -873,7 +873,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 663
+          "line": 1099
         }
       ]
     },
@@ -883,7 +883,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 733
+          "line": 1221
         }
       ]
     },
@@ -893,7 +893,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 844
+          "line": 1366
         }
       ]
     },
@@ -903,7 +903,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 912
+          "line": 1497
         }
       ]
     },
@@ -913,7 +913,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 1005
+          "line": 1644
         }
       ]
     },
@@ -923,7 +923,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 1106
+          "line": 1786
         }
       ]
     },
@@ -933,7 +933,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 1190
+          "line": 1931
         }
       ]
     },
@@ -943,7 +943,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 1266
+          "line": 2007
         }
       ]
     },
@@ -953,7 +953,7 @@
       "locations": [
         {
           "file": "routes\\concert.js",
-          "line": 1334
+          "line": 2075
         }
       ]
     },
