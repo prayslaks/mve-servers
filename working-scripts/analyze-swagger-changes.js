@@ -3,6 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 /**
  * Swagger Spec 변경사항 분석 및 언리얼 코드 힌트 생성 스크립트
  *
@@ -18,8 +20,8 @@ const path = require('path');
 // ============================================================================
 
 const CONFIG = {
-  // 언리얼 프로젝트 ApiSpecs 폴더 (기존 spec 저장 위치)
-  unrealApiSpecsDir: path.join('c:', 'Users', 'user', 'Documents', 'Unreal Projects', 'MVE', 'ApiSpecs'),
+  // 언리얼 프로젝트 ApiSpecs 폴더 위치
+  unrealApiSpecsDir: path.join(process.env.UNREAL_PROJECT_PATH, 'ApiSpecs'),
 
   // 서버 프로젝트의 최신 spec 위치
   loginServerSpecPath: path.join(__dirname, '..', 'mve-login-server', 'working-scripts', 'outputs', 'api-spec.json'),
@@ -42,7 +44,7 @@ function readJsonFile(filePath) {
     const content = fs.readFileSync(filePath, 'utf-8');
     return JSON.parse(content);
   } catch (error) {
-    console.error(`  ❌ 파일 읽기 실패: ${filePath}`);
+    console.error(`  파일 읽기 실패: ${filePath}`);
     console.error(`     ${error.message}`);
     return null;
   }
@@ -60,7 +62,7 @@ function writeJsonFile(filePath, data) {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
     return true;
   } catch (error) {
-    console.error(`  ❌ 파일 쓰기 실패: ${filePath}`);
+    console.error(`  파일 쓰기 실패: ${filePath}`);
     console.error(`     ${error.message}`);
     return false;
   }
@@ -624,14 +626,14 @@ async function main() {
     const newSpec = readJsonFile(server.newSpecPath);
 
     if (!oldSpec || !newSpec) {
-      console.log(`${TAG} ⚠️  ${server.name} Spec 파일 읽기 실패, 건너뜀`);
+      console.log(`${TAG} ${server.name} Spec 파일 읽기 실패, 건너뜀`);
       continue;
     }
 
     const result = compareSpecs(oldSpec, newSpec, server.name);
     comparisonResults.push(result);
 
-    console.log(`${TAG} 📋 ${server.name}: +${result.summary.addedEndpoints} ~${result.summary.modifiedEndpoints} -${result.summary.removedEndpoints}`);
+    console.log(`${TAG} ${server.name}: +${result.summary.addedEndpoints} ~${result.summary.modifiedEndpoints} -${result.summary.removedEndpoints}`);
   }
 
   // 2. 언리얼 코드 힌트 생성
@@ -648,18 +650,18 @@ async function main() {
     );
 
     if (totalChanges > 0) {
-      console.log(`${TAG} ✅ 힌트 파일 생성 완료 (${totalChanges}개 변경사항)`);
+      console.log(`${TAG} 힌트 파일 생성 완료 (${totalChanges}개 변경사항)`);
     } else {
-      console.log(`${TAG} ℹ️  변경사항 없음`);
+      console.log(`${TAG} 변경사항 없음`);
     }
   } else {
-    console.log(`${TAG} ❌ 힌트 파일 저장 실패`);
+    console.log(`${TAG} 힌트 파일 저장 실패`);
     process.exit(1);
   }
 }
 
 // 실행
 main().catch(error => {
-  console.error('❌ 치명적 오류 발생:', error);
+  console.error('치명적 오류 발생:', error);
   process.exit(1);
 });

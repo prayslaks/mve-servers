@@ -3,7 +3,7 @@
   "info": {
     "title": "MVE Resource Server API",
     "version": "1.0.0",
-    "description": "MVE (Meta Virtual Environment) Resource Server API\n\n이 API는 다음 기능을 제공합니다:\n- 🎵 음원 파일 관리 (스트리밍, 업로드, 검색)\n- 🎨 3D 모델 파일 관리 (GLB)\n- 🤖 AI 기반 3D 모델 생성\n- 🎭 아바타 악세서리 프리셋 관리\n- 🎪 콘서트 세션 관리\n\n**인증**: 모든 API는 JWT Bearer 토큰 인증이 필요합니다.\n**토큰 발급**: [MVE Login Server](https://github.com/prayslaks/mve-login-server)에서 로그인하여 JWT 토큰을 발급받으세요.",
+    "description": "MVE (Meta Virtual Environment) Resource Server API\n\n이 API는 다음 기능을 제공합니다:\n- 음원 파일 관리 (스트리밍, 업로드, 검색)\n- 3D 모델 파일 관리 (GLB)\n- AI 기반 3D 모델 생성\n- 아바타 악세서리 프리셋 관리\n- 콘서트 세션 관리\n\n**인증**: 모든 API는 JWT Bearer 토큰 인증이 필요합니다.\n**토큰 발급**: [MVE Login Server](https://github.com/prayslaks/mve-login-server)에서 로그인하여 JWT 토큰을 발급받으세요.",
     "contact": {
       "name": "MVE Development Team",
       "url": "https://github.com/prayslaks"
@@ -59,6 +59,64 @@
       }
     },
     "schemas": {
+      "BaseResponse": {
+        "type": "object",
+        "description": "기본 API 응답 포맷 (모든 API가 이 구조를 따름)",
+        "required": [
+          "success",
+          "code",
+          "message"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "요청 성공 여부",
+            "example": true
+          },
+          "code": {
+            "type": "integer",
+            "description": "응답 코드 (HTTP 상태 코드와 유사)",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "Success"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "에러 응답 포맷",
+        "required": [
+          "success",
+          "code",
+          "message"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "항상 false",
+            "example": false
+          },
+          "code": {
+            "type": "integer",
+            "description": "에러 코드",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "에러 메시지",
+            "example": "Invalid request"
+          },
+          "error": {
+            "type": "string",
+            "nullable": true,
+            "description": "상세 에러 정보 (디버깅용)",
+            "example": "Missing required field: username"
+          }
+        }
+      },
       "Vector3D": {
         "type": "object",
         "description": "3D 벡터 (위치)",
@@ -111,6 +169,174 @@
           }
         }
       },
+      "AudioFile": {
+        "type": "object",
+        "description": "음원 파일 정보",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "음원 ID",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "description": "음원 제목",
+            "example": "Sample Track 1"
+          },
+          "artist": {
+            "type": "string",
+            "nullable": true,
+            "description": "아티스트",
+            "example": "Artist A"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "파일 경로",
+            "example": "audio/sample1.m4a"
+          },
+          "fileSize": {
+            "type": "integer",
+            "description": "파일 크기 (bytes)",
+            "example": 3145728
+          },
+          "duration": {
+            "type": "integer",
+            "nullable": true,
+            "description": "재생 시간 (초)",
+            "example": 180
+          },
+          "format": {
+            "type": "string",
+            "description": "파일 포맷",
+            "example": "m4a"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성 시간"
+          }
+        }
+      },
+      "ModelInfo": {
+        "type": "object",
+        "description": "3D 모델 파일 정보",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "모델 ID",
+            "example": 1
+          },
+          "modelName": {
+            "type": "string",
+            "description": "모델 이름",
+            "example": "My Avatar"
+          },
+          "filePath": {
+            "type": "string",
+            "description": "파일 경로",
+            "example": "models/user1/avatar.glb"
+          },
+          "fileSize": {
+            "type": "integer",
+            "description": "파일 크기 (bytes)",
+            "example": 5242880
+          },
+          "thumbnailPath": {
+            "type": "string",
+            "nullable": true,
+            "description": "썸네일 경로",
+            "example": "models/user1/avatar_thumb.jpg"
+          },
+          "isAiGenerated": {
+            "type": "boolean",
+            "description": "AI로 생성된 모델 여부 (true: AI 생성, false: 직접 업로드)",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성 시간"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정 시간"
+          }
+        }
+      },
+      "AIJobStatus": {
+        "type": "object",
+        "description": "AI 작업 상태 정보",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "작업 ID",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "processing",
+              "completed",
+              "failed"
+            ],
+            "description": "작업 상태",
+            "example": "processing"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "AI 생성 프롬프트",
+            "example": "A futuristic robot character"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "작업 생성 시간"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "작업 완료 시간"
+          },
+          "modelId": {
+            "type": "integer",
+            "nullable": true,
+            "description": "생성된 모델 ID (완료 시)",
+            "example": 42
+          },
+          "downloadUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "다운로드 URL (완료 시)",
+            "example": "https://example.com/models/generated/model.glb"
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true,
+            "description": "에러 메시지 (실패 시)",
+            "example": "Model generation failed"
+          }
+        }
+      },
+      "DeletedModelInfo": {
+        "type": "object",
+        "description": "삭제된 모델 정보",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "모델 ID",
+            "example": 1
+          },
+          "modelName": {
+            "type": "string",
+            "description": "모델 이름",
+            "example": "My Avatar"
+          }
+        }
+      },
       "Accessory": {
         "type": "object",
         "description": "아바타 액세서리",
@@ -124,53 +350,24 @@
           "socketName": {
             "type": "string",
             "description": "소켓 이름",
-            "example": "head_socket"
+            "example": "hand_socket"
           },
           "relativeLocation": {
-            "$ref": "#/components/schemas/Vector3D",
-            "type": "object",
-            "properties": {
-              "x": {
-                "type": "number",
-                "format": "float"
-              },
-              "y": {
-                "type": "number",
-                "format": "float"
-              },
-              "z": {
-                "type": "number",
-                "format": "float"
-              }
-            }
+            "$ref": "#/components/schemas/Vector3D"
           },
           "relativeRotation": {
-            "$ref": "#/components/schemas/Rotator",
-            "type": "object",
-            "properties": {
-              "pitch": {
-                "type": "number",
-                "format": "float"
-              },
-              "yaw": {
-                "type": "number",
-                "format": "float"
-              },
-              "roll": {
-                "type": "number",
-                "format": "float"
-              }
-            }
-          },
-          "modelUrl": {
-            "type": "string",
-            "description": "3D 모델 URL",
-            "example": "/models/hat.glb"
+            "$ref": "#/components/schemas/Rotator"
           },
           "relativeScale": {
             "type": "number",
             "format": "float",
+            "description": "상대적 스케일",
             "example": 1
+          },
+          "modelUrl": {
+            "type": "string",
+            "description": "3D 모델 URL",
+            "example": "https://example.com/models/microphone.glb"
           }
         }
       },
@@ -220,14 +417,6 @@
             "type": "string",
             "format": "date-time",
             "description": "수정 시간"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
           }
         }
       },
@@ -368,127 +557,6 @@
             "example": 5
           }
         }
-      },
-      "AudioFile": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "example": 1
-          },
-          "title": {
-            "type": "string",
-            "example": "Sample Track 1"
-          },
-          "artist": {
-            "type": "string",
-            "nullable": true,
-            "example": "Artist A"
-          },
-          "file_path": {
-            "type": "string",
-            "example": "audio/sample1.m4a"
-          },
-          "file_size": {
-            "type": "integer",
-            "example": 3145728
-          },
-          "duration": {
-            "type": "integer",
-            "nullable": true,
-            "description": "재생 시간 (초)",
-            "example": 180
-          },
-          "format": {
-            "type": "string",
-            "example": "m4a"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "ModelInfo": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "example": 1
-          },
-          "model_name": {
-            "type": "string",
-            "example": "My Avatar"
-          },
-          "file_path": {
-            "type": "string",
-            "example": "models/user1/avatar.glb"
-          },
-          "file_size": {
-            "type": "integer",
-            "example": 5242880
-          },
-          "thumbnail_path": {
-            "type": "string",
-            "nullable": true,
-            "example": "models/user1/avatar_thumb.jpg"
-          },
-          "is_ai_generated": {
-            "type": "boolean",
-            "example": false,
-            "description": "AI로 생성된 모델 여부 (true: AI 생성, false: 직접 업로드)"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "AIJobStatus": {
-        "type": "object",
-        "properties": {
-          "job_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "queued",
-              "processing",
-              "completed",
-              "failed"
-            ]
-          },
-          "prompt": {
-            "type": "string"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "completed_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "model_id": {
-            "type": "integer",
-            "nullable": true
-          },
-          "download_url": {
-            "type": "string",
-            "nullable": true
-          },
-          "error_message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
       }
     }
   },
@@ -549,16 +617,61 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccessoryPreset"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "presetName": {
+                          "type": "string",
+                          "example": "정우의 프리셋"
+                        },
+                        "description": {
+                          "type": "string",
+                          "example": "견고하고 명징하게 직조해낸 한 장의 마스터피스"
+                        },
+                        "isPublic": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복된 프리셋 이름",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -592,30 +705,48 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "count": {
-                      "type": "integer"
-                    },
-                    "presets": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/AccessoryPreset"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer"
+                        },
+                        "presets": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/AccessoryPreset"
+                          }
+                        }
                       }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -649,30 +780,62 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "preset": {
-                      "$ref": "#/components/schemas/AccessoryPreset"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "preset": {
+                          "$ref": "#/components/schemas/AccessoryPreset"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "403": {
-            "description": "접근 권한 없음"
+            "description": "접근 권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "프리셋을 찾을 수 없음"
+            "description": "프리셋을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -730,25 +893,60 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccessoryPreset"
+                  "$ref": "#/components/schemas/BaseResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "403": {
-            "description": "접근 권한 없음"
+            "description": "접근 권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "프리셋을 찾을 수 없음"
+            "description": "프리셋을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "409": {
-            "description": "중복된 프리셋 이름"
+            "description": "중복된 프리셋 이름",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -780,30 +978,50 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/BaseResponse"
                 }
               }
             }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "403": {
-            "description": "접근 권한 없음"
+            "description": "접근 권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "프리셋을 찾을 수 없음"
+            "description": "프리셋을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -826,32 +1044,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "count": {
-                      "type": "integer",
-                      "example": 3
-                    },
-                    "audio_files": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/AudioFile"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "example": 3
+                        },
+                        "audioFiles": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/AudioFile"
+                          }
+                        }
                       }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -886,52 +1121,59 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "stream_url": {
-                      "type": "string",
-                      "description": "스트리밍 URL (S3 Presigned URL 또는 로컬 URL)",
-                      "example": "https://bucket.s3.amazonaws.com/audio/file.aac?X-Amz-Signature=..."
-                    },
-                    "audio_file": {
+                    {
                       "type": "object",
                       "properties": {
-                        "id": {
-                          "type": "integer"
+                        "streamUrl": {
+                          "type": "string",
+                          "description": "스트리밍 URL (S3 Presigned URL 또는 로컬 URL)",
+                          "example": "https://bucket.s3.amazonaws.com/audio/file.aac?X-Amz-Signature=..."
                         },
-                        "title": {
-                          "type": "string"
-                        },
-                        "format": {
-                          "type": "string"
-                        },
-                        "file_size": {
-                          "type": "integer"
+                        "expiresIn": {
+                          "type": "integer",
+                          "description": "URL 유효 시간 (초, S3만 해당)",
+                          "example": 3600
                         }
                       }
-                    },
-                    "expires_in": {
-                      "type": "integer",
-                      "description": "URL 유효 시간 (초, S3만 해당)",
-                      "example": 3600
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "음원을 찾을 수 없음"
+            "description": "음원을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -1046,32 +1288,52 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "message": {
-                      "type": "string",
-                      "example": "Audio file uploaded successfully"
-                    },
-                    "audio_file": {
-                      "$ref": "#/components/schemas/AudioFile"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "audioFile": {
+                          "$ref": "#/components/schemas/AudioFile"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "잘못된 요청 (파일 또는 제목 누락)"
+            "description": "잘못된 요청 (파일 또는 제목 누락)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -1106,32 +1368,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "count": {
-                      "type": "integer",
-                      "example": 2
-                    },
-                    "audio_files": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/AudioFile"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "audioFiles": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/AudioFile"
+                          }
+                        }
                       }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -1166,28 +1445,52 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "audio_file": {
-                      "$ref": "#/components/schemas/AudioFile"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "audioFile": {
+                          "$ref": "#/components/schemas/AudioFile"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "음원을 찾을 수 없음"
+            "description": "음원을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -1250,31 +1553,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Operation successful"
-                    },
-                    "roomId": {
-                      "type": "string",
-                      "description": "생성된 콘서트 방 ID",
-                      "example": "concert_1702345678901_abc123def"
-                    },
-                    "expiresIn": {
-                      "type": "integer",
-                      "description": "만료 시간 (초)",
-                      "example": 3600
+                    {
+                      "type": "object",
+                      "properties": {
+                        "roomId": {
+                          "type": "string",
+                          "description": "생성된 콘서트 방 ID",
+                          "example": "concert_1702345678901_abc123def"
+                        },
+                        "expiresIn": {
+                          "type": "integer",
+                          "description": "만료 시간 (초)",
+                          "example": 3600
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -1284,21 +1582,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "MISSING_FIELDS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "concertName is required"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1308,21 +1592,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1332,21 +1602,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "CREATE_FAILED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Error message"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1372,33 +1628,28 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Operation successful"
-                    },
-                    "count": {
-                      "type": "integer",
-                      "description": "콘서트 개수",
-                      "example": 2
-                    },
-                    "concerts": {
-                      "type": "array",
-                      "description": "콘서트 목록",
-                      "items": {
-                        "$ref": "#/components/schemas/ConcertInfo"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "description": "콘서트 개수",
+                          "example": 2
+                        },
+                        "concerts": {
+                          "type": "array",
+                          "description": "콘서트 목록",
+                          "items": {
+                            "$ref": "#/components/schemas/ConcertInfo"
+                          }
+                        }
                       }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -1408,21 +1659,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1432,21 +1669,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "LIST_FAILED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Error message"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1504,21 +1727,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Client joined concert successfully"
-                    }
-                  }
+                  "$ref": "#/components/schemas/BaseResponse"
                 }
               }
             }
@@ -1528,21 +1737,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "MISSING_CLIENT_ID"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "clientId is required"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1552,21 +1747,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1576,21 +1757,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only the studio listen server can register a client."
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1648,21 +1815,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Client left concert successfully"
-                    }
-                  }
+                  "$ref": "#/components/schemas/BaseResponse"
                 }
               }
             }
@@ -1672,21 +1825,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "MISSING_CLIENT_ID"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "clientId is required"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1696,21 +1835,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1720,21 +1845,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only the studio listen server can unregister a client."
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1772,24 +1883,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Operation successful"
-                    },
-                    "concert": {
-                      "$ref": "#/components/schemas/ConcertInfo"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "concert": {
+                          "$ref": "#/components/schemas/ConcertInfo"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -1799,21 +1905,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1823,21 +1915,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "CONCERT_NOT_FOUND"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Concert not found"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1885,37 +1963,32 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Song added successfully"
-                    },
-                    "songs": {
-                      "type": "array",
-                      "description": "업데이트된 노래 목록",
-                      "items": {
-                        "$ref": "#/components/schemas/ConcertSong"
-                      }
-                    },
-                    "currentSong": {
-                      "allOf": [
-                        {
-                          "$ref": "#/components/schemas/ConcertSong"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "songs": {
+                          "type": "array",
+                          "description": "업데이트된 노래 목록",
+                          "items": {
+                            "$ref": "#/components/schemas/ConcertSong"
+                          }
+                        },
+                        "currentSong": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/ConcertSong"
+                            }
+                          ],
+                          "nullable": true,
+                          "description": "현재 재생 중인 곡"
                         }
-                      ],
-                      "nullable": true,
-                      "description": "현재 재생 중인 곡"
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -1925,21 +1998,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "MISSING_FIELDS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "songNum, audioId, streamUrl, stageDirectionId are required"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1949,21 +2008,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1973,21 +2018,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only studio can add songs"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2035,37 +2066,32 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Song removed successfully"
-                    },
-                    "songs": {
-                      "type": "array",
-                      "description": "업데이트된 노래 목록",
-                      "items": {
-                        "$ref": "#/components/schemas/ConcertSong"
-                      }
-                    },
-                    "currentSong": {
-                      "allOf": [
-                        {
-                          "$ref": "#/components/schemas/ConcertSong"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "songs": {
+                          "type": "array",
+                          "description": "업데이트된 노래 목록",
+                          "items": {
+                            "$ref": "#/components/schemas/ConcertSong"
+                          }
+                        },
+                        "currentSong": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/ConcertSong"
+                            }
+                          ],
+                          "nullable": true,
+                          "description": "현재 재생 중인 곡"
                         }
-                      ],
-                      "nullable": true,
-                      "description": "현재 재생 중인 곡"
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -2075,21 +2101,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "REMOVE_SONG_FAILED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Error message"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2099,21 +2111,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2123,21 +2121,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only studio can remove songs"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2195,25 +2179,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Song changed successfully"
-                    },
-                    "currentSong": {
+                    {
                       "type": "object",
-                      "description": "변경된 현재 곡"
+                      "properties": {
+                        "currentSong": {
+                          "$ref": "#/components/schemas/ConcertSong"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -2223,21 +2201,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "MISSING_FIELDS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "songNum is required"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2247,21 +2211,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2271,21 +2221,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only studio can change songs"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2323,29 +2259,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Operation successful"
-                    },
-                    "currentSong": {
-                      "allOf": [
-                        {
-                          "$ref": "#/components/schemas/ConcertSong"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "currentSong": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/ConcertSong"
+                            }
+                          ],
+                          "nullable": true
                         }
-                      ],
-                      "nullable": true
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -2355,21 +2286,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2379,21 +2296,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "ACCESS_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Not in concert room"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2403,21 +2306,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "GET_CURRENT_SONG_FAILED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Error message"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2465,28 +2354,23 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Accessory added successfully"
-                    },
-                    "accessories": {
-                      "type": "array",
-                      "description": "업데이트된 액세서리 목록",
-                      "items": {
-                        "$ref": "#/components/schemas/Accessory"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "accessories": {
+                          "type": "array",
+                          "description": "업데이트된 액세서리 목록",
+                          "items": {
+                            "$ref": "#/components/schemas/Accessory"
+                          }
+                        }
                       }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -2496,21 +2380,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "MISSING_FIELDS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "socketName, relativeLocation, relativeRotation, modelUrl are required"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2520,21 +2390,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2544,21 +2400,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only studio can add accessories"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2606,28 +2448,23 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Accessory removed successfully"
-                    },
-                    "accessories": {
-                      "type": "array",
-                      "description": "업데이트된 액세서리 목록",
-                      "items": {
-                        "$ref": "#/components/schemas/Accessory"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "accessories": {
+                          "type": "array",
+                          "description": "업데이트된 액세서리 목록",
+                          "items": {
+                            "$ref": "#/components/schemas/Accessory"
+                          }
+                        }
                       }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -2637,21 +2474,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "REMOVE_ACCESSORY_FAILED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Error message"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2661,21 +2484,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2685,21 +2494,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only studio can remove accessories"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2759,28 +2554,23 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Accessories updated successfully"
-                    },
-                    "accessories": {
-                      "type": "array",
-                      "description": "업데이트된 액세서리 목록",
-                      "items": {
-                        "$ref": "#/components/schemas/Accessory"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "accessories": {
+                          "type": "array",
+                          "description": "업데이트된 액세서리 목록",
+                          "items": {
+                            "$ref": "#/components/schemas/Accessory"
+                          }
+                        }
                       }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -2790,21 +2580,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "INVALID_ACCESSORIES"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "accessories must be an array"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2814,21 +2590,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2838,21 +2600,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only studio can update accessories"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2900,24 +2648,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Listen server info updated successfully"
-                    },
-                    "listenServer": {
-                      "$ref": "#/components/schemas/ListenServer"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "listenServer": {
+                          "$ref": "#/components/schemas/ListenServer"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -2927,21 +2670,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "MISSING_FIELDS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "localIP and port are required"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2951,21 +2680,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2975,21 +2690,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only studio can update listen server info"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3047,25 +2748,20 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string",
-                      "example": "SUCCESS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Concert is now open"
-                    },
-                    "isOpen": {
-                      "type": "boolean",
-                      "example": true
+                    {
+                      "type": "object",
+                      "properties": {
+                        "isOpen": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -3075,21 +2771,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "MISSING_FIELDS"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "isOpen (boolean) is required"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3099,21 +2781,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "UNAUTHORIZED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Authentication failed"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3123,21 +2791,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "code": {
-                      "type": "string",
-                      "example": "PERMISSION_DENIED"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Only studio can toggle concert open status"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3174,33 +2828,52 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "code": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "roomId": {
-                      "type": "string"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "roomId": {
+                          "type": "string"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "403": {
-            "description": "권한 없음 (스튜디오만 가능)"
+            "description": "권한 없음 (스튜디오만 가능)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "콘서트를 찾을 수 없음"
+            "description": "콘서트를 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3223,35 +2896,50 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "message": {
-                      "type": "string"
-                    },
-                    "expiredCount": {
-                      "type": "integer",
-                      "description": "만료된 콘서트 수"
-                    },
-                    "expiredRooms": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "description": "만료된 콘서트 방 ID 목록"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "expiredCount": {
+                          "type": "integer",
+                          "description": "만료된 콘서트 수"
+                        },
+                        "expiredRooms": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "만료된 콘서트 방 ID 목록"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "403": {
-            "description": "프로덕션 환경에서는 사용 불가"
+            "description": "프로덕션 환경에서는 사용 불가",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3272,8 +2960,8 @@
                 "type": "object",
                 "required": [
                   "model",
-                  "job_id",
-                  "job_secret"
+                  "jobId",
+                  "jobSecret"
                 ],
                 "properties": {
                   "model": {
@@ -3286,11 +2974,11 @@
                     "format": "binary",
                     "description": "썸네일 이미지 (선택)"
                   },
-                  "job_id": {
+                  "jobId": {
                     "type": "string",
                     "description": "AI 작업 ID"
                   },
-                  "job_secret": {
+                  "jobSecret": {
                     "type": "string",
                     "description": "AI 작업 Secret"
                   }
@@ -3301,19 +2989,76 @@
         },
         "responses": {
           "201": {
-            "description": "모델 업로드 성공"
+            "description": "모델 업로드 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "$ref": "#/components/schemas/ModelInfo"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "403": {
-            "description": "잘못된 job_secret"
+            "description": "잘못된 jobSecret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Job을 찾을 수 없음"
+            "description": "Job을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Job이 이미 완료됨"
+            "description": "Job이 이미 완료됨",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3321,7 +3066,7 @@
     "/api/models/generate": {
       "post": {
         "summary": "AI 3D 모델 생성 요청",
-        "description": "프롬프트 또는 이미지를 기반으로 AI가 3D 모델을 생성합니다. 비동기 처리되며 즉시 job_id를 반환합니다.",
+        "description": "프롬프트 또는 이미지를 기반으로 AI가 3D 모델을 생성합니다. 비동기 처리되며 즉시 jobId를 반환합니다.",
         "tags": [
           "Models",
           "AI Generation"
@@ -3362,39 +3107,59 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "message": {
-                      "type": "string",
-                      "example": "AI generation request submitted successfully"
-                    },
-                    "job_id": {
-                      "type": "string",
-                      "format": "uuid",
-                      "example": "550e8400-e29b-41d4-a716-446655440000"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "jobId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "잘못된 요청 (프롬프트 누락)"
+            "description": "잘못된 요청 (프롬프트 누락)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/models/jobs/{job_id}": {
+    "/api/models/jobs/{jobId}": {
       "get": {
         "summary": "AI 작업 상태 조회",
         "description": "AI 모델 생성 작업의 현재 상태를 조회합니다.",
@@ -3409,7 +3174,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "job_id",
+            "name": "jobId",
             "required": true,
             "schema": {
               "type": "string",
@@ -3425,28 +3190,52 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "data": {
-                      "$ref": "#/components/schemas/AIJobStatus"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AIJobStatus"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "403": {
-            "description": "권한 없음 (다른 사용자의 작업)"
+            "description": "권한 없음 (다른 사용자의 작업)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "작업을 찾을 수 없음"
+            "description": "작업을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3469,32 +3258,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "count": {
-                      "type": "integer",
-                      "example": 2
-                    },
-                    "models": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/ModelInfo"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "models": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ModelInfo"
+                          }
+                        }
                       }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3528,24 +3334,52 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "model": {
-                      "$ref": "#/components/schemas/ModelInfo"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "$ref": "#/components/schemas/ModelInfo"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "모델을 찾을 수 없음 또는 권한 없음"
+            "description": "모델을 찾을 수 없음 또는 권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -3577,16 +3411,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "model_name": {
+                  "modelName": {
                     "type": "string"
                   },
-                  "file_path": {
+                  "filePath": {
                     "type": "string"
                   },
-                  "file_size": {
+                  "fileSize": {
                     "type": "integer"
                   },
-                  "thumbnail_path": {
+                  "thumbnailPath": {
                     "type": "string"
                   }
                 }
@@ -3596,19 +3430,97 @@
         },
         "responses": {
           "200": {
-            "description": "모델 수정 성공"
+            "description": "모델 수정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "modelName": {
+                              "type": "string"
+                            },
+                            "filePath": {
+                              "type": "string"
+                            },
+                            "fileSize": {
+                              "type": "integer"
+                            },
+                            "thumbnailPath": {
+                              "type": "string"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "모델을 찾을 수 없음 또는 권한 없음"
+            "description": "모델을 찾을 수 없음 또는 권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "409": {
-            "description": "중복된 모델 이름"
+            "description": "중복된 모델 이름",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -3641,40 +3553,52 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "message": {
-                      "type": "string",
-                      "example": "Model deleted successfully"
-                    },
-                    "deleted_model": {
+                    {
                       "type": "object",
                       "properties": {
-                        "id": {
-                          "type": "integer"
-                        },
-                        "model_name": {
-                          "type": "string"
+                        "deletedModel": {
+                          "$ref": "#/components/schemas/DeletedModelInfo"
                         }
                       }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "모델을 찾을 수 없음"
+            "description": "모델을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3711,7 +3635,7 @@
                     "format": "binary",
                     "description": "썸네일 이미지 (선택)"
                   },
-                  "model_name": {
+                  "modelName": {
                     "type": "string",
                     "description": "모델 이름 (선택, 미입력 시 파일명 사용)",
                     "example": "My Character"
@@ -3727,32 +3651,62 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
                     },
-                    "message": {
-                      "type": "string",
-                      "example": "Model uploaded successfully"
-                    },
-                    "model": {
-                      "$ref": "#/components/schemas/ModelInfo"
+                    {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "$ref": "#/components/schemas/ModelInfo"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "잘못된 요청 (모델 파일 누락)"
+            "description": "잘못된 요청 (모델 파일 누락)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복된 모델 이름",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3802,16 +3756,81 @@
         },
         "responses": {
           "200": {
-            "description": "썸네일 업로드 성공"
+            "description": "썸네일 업로드 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "modelName": {
+                              "type": "string"
+                            },
+                            "thumbnailPath": {
+                              "type": "string"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "모델을 찾을 수 없음 또는 권한 없음"
+            "description": "모델을 찾을 수 없음 또는 권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -3850,10 +3869,34 @@
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "모델 또는 썸네일을 찾을 수 없음"
+            "description": "모델 또는 썸네일을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3895,13 +3938,34 @@
             }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "모델을 찾을 수 없음"
+            "description": "모델을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "500": {
-            "description": "서버 오류"
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }

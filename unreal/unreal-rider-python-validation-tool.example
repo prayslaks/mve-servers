@@ -1,0 +1,394 @@
+# scripts/validate_api_structs.py
+
+import json
+import os
+import re
+from pathlib import Path
+from typing import Dict, Any, List, Tuple, Optional
+
+# --- CONFIGURATION ---
+
+# JSON 타입과 Unreal C++ 타입 매핑
+# Key: JSON type, Value: List of corresponding C++ types
+TYPE_MAPPING = {
+    "string": ["FString"],
+    "integer": ["int32", "int64"],
+    "number": ["float", "double"],
+    "boolean": ["bool"],
+    # 'object' and 'array' are handled specially
+}
+
+# 스키마 이름과 미리 구현된 C++ 타입 매핑
+PRE_IMPLEMENTED_SCHEMAS = {
+    "Vector3D": "FVector",
+    "Rotator": "FRotator",
+    "BaseResponse": None,  # Base response schema - skip validation
+    "ErrorResponse": None,  # Error response schema - skip validation
+}
+
+# --- HELPER FUNCTIONS ---
+
+def to_pascal_case(s: str) -> str:
+    """Converts a snake_case or camelCase string to PascalCase."""
+    if not s:
+        return ""
+    # Handle snake_case by splitting and capitalizing
+    if '_' in s:
+        return "".join(word.capitalize() for word in s.split('_'))
+    # Handle camelCase by capitalizing the first letter
+    return s[0].upper() + s[1:]
+
+
+def resolve_schema_properties(schema: Dict[str, Any], component_schemas: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    OpenAPI 스키마에서 properties를 추출합니다.
+    allOf, $ref, 직접 properties 모두 처리합니다.
+    BaseResponse, ErrorResponse는 제외하고 실제 데이터 필드만 반환합니다.
+    """
+    if not schema:
+        return None
+
+    # Case 1: allOf 패턴 (BaseResponse + 추가 properties)
+    if "allOf" in schema:
+        merged_props = {}
+        for sub_schema in schema["allOf"]:
+            # $ref 확인
+            if "$ref" in sub_schema:
+                ref_name = sub_schema["$ref"].split('/')[-1]
+                # BaseResponse, ErrorResponse는 스킵
+                if ref_name in ["BaseResponse", "ErrorResponse"]:
+                    continue
+                # 다른 참조는 component_schemas에서 가져오기
+                if ref_name in component_schemas:
+                    ref_props = component_schemas[ref_name]
+                    if isinstance(ref_props, dict):
+                        merged_props.update(ref_props)
+            # 직접 properties가 있는 경우
+            elif "properties" in sub_schema:
+                merged_props.update(sub_schema["properties"])
+
+        return merged_props if merged_props else None
+
+    # Case 2: 직접 $ref
+    if "$ref" in schema:
+        ref_name = schema["$ref"].split('/')[-1]
+        if ref_name in component_schemas:
+            return component_schemas[ref_name]
+        return None
+
+    # Case 3: 직접 properties
+    if "properties" in schema:
+        return schema["properties"]
+
+    return None
+
+
+# --- C++ HEADER PARSER ---
+
+def parse_cpp_header(file_path: Path) -> Tuple[Dict[str, Dict[str, str]], Dict[str, str]]:
+    """
+    Unreal Engine C++ 헤더 파일을 파싱하여 USTRUCT 정보와 API 스키마 어노테이션을 추출합니다.
+    Returns a tuple of:
+    - a dict of structs { struct_name: {prop_name: prop_type} }
+    - a dict of annotations { annotation_key: struct_name }
+    """
+    structs = {}
+    annotations = {}
+    
+    current_struct_name = None
+    annotation_buffer = []
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except IOError as e:
+        print(f"Error reading C++ header file {file_path}: {e}")
+        return {}, {}
+
+    for i, line in enumerate(lines):
+        line = line.strip()
+
+        # 어노테이션 블록 수집
+        if line.startswith("/**") or (annotation_buffer and not line.startswith("*/")):
+             annotation_buffer.append(line)
+
+        # USTRUCT 선언 찾기
+        if line.startswith("USTRUCT("):
+            # 다음 몇 줄에서 struct 선언을 찾음
+            for j in range(i + 1, min(i + 5, len(lines))):
+                match = re.search(r"struct\s+(\w+)", lines[j])
+                if match:
+                    current_struct_name = match.group(1)
+                    structs[current_struct_name] = {}
+                    
+                    # 수집된 어노테이션 처리
+                    if annotation_buffer:
+                        key = None
+                        # 태그 찾기: @MveApiComponentSchema <SchemaName>
+                        comp_match = re.search(r"@MveApiComponentSchema\s+(\w+)", "\n".join(annotation_buffer))
+                        if comp_match:
+                            key = f"component:{comp_match.group(1)}"
+                        else:
+                            # 태그 찾기: @MveApiResponse <METHOD> <PATH>
+                            resp_match = re.search(r"@MveApiResponse\s+(POST|GET|PUT|DELETE)\s+([\w/\-{}]+)", "\n".join(annotation_buffer))
+                            if resp_match:
+                                key = f"response:{resp_match.group(1).upper()} {resp_match.group(2)}"
+                        
+                        if key:
+                            annotations[key] = current_struct_name
+                    
+                    annotation_buffer.clear()
+                    break
+            continue
+
+        # 구조체 종료
+        if line.startswith("};"):
+            current_struct_name = None
+            continue
+            
+        # 구조체 내에서 UPROPERTY 찾기
+        if current_struct_name and line.startswith("UPROPERTY("):
+            # UPROPERTY 다음 줄에 변수 선언이 있는 경우가 많음
+            for j in range(i + 1, min(i + 5, len(lines))):
+                declaration_line = lines[j].strip()
+                # 예: TArray<FString> Tags; 또는 FString MyVar; 또는 FVector Location = FVector::ZeroVector;
+                match = re.match(r"((TArray<.+?>)|(F\w+)|(\w+))\s+(\w+)(;|\s*=)", declaration_line)
+                if match:
+                    prop_type = match.group(1).replace(" ", "")
+                    prop_name = match.group(5)
+                    structs[current_struct_name][prop_name] = prop_type
+                    break 
+
+    return structs, annotations
+
+
+# --- OPENAPI SPEC PARSER ---
+
+def parse_openapi_specs(spec_paths: List[Path]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """
+    여러 OpenAPI JSON 파일을 파싱하여 스키마 정보를 추출합니다.
+    Returns a tuple of:
+    - a dict of component schemas { schema_name: properties }
+    - a dict of response schemas { "METHOD /path": properties }
+    """
+    component_schemas = {}
+    response_schemas = {}
+
+    for file_path in spec_paths:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                spec = json.load(f)
+        except (IOError, json.JSONDecodeError) as e:
+            print(f"Error reading or parsing OpenAPI spec {file_path}: {e}")
+            continue
+
+        # 1. components/schemas에 있는 모든 스키마 추출
+        if "components" in spec and "schemas" in spec["components"]:
+            for schema_name, schema_def in spec["components"]["schemas"].items():
+                component_schemas[schema_name] = schema_def.get("properties", {})
+
+        # 2. paths 내의 모든 성공(2xx) 응답 스키마 추출
+        if "paths" in spec:
+            for path, path_item in spec["paths"].items():
+                for method, operation in path_item.items():
+                    if method.upper() not in ["GET", "POST", "PUT", "DELETE"]:
+                        continue
+
+                    if "responses" in operation:
+                        for status_code, response in operation["responses"].items():
+                            if status_code.startswith('2'): # 성공 응답만 체크 (200, 201, 202 등)
+                                content = response.get("content", {}).get("application/json", {})
+                                schema = content.get("schema", {})
+
+                                key = f"{method.upper()} {path}"
+
+                                # 새로운 헬퍼 함수로 properties 추출 (allOf 패턴 지원)
+                                props = resolve_schema_properties(schema, component_schemas)
+
+                                if props is not None:
+                                    response_schemas[key] = props
+                                break # 첫 번째 성공 응답만 처리
+    
+    return component_schemas, response_schemas
+
+# --- COMPARISON LOGIC ---
+
+def compare_and_report(
+    cpp_structs: Dict[str, Dict[str, str]],
+    annotations: Dict[str, str],
+    component_schemas: Dict[str, Any],
+    response_schemas: Dict[str, Any]
+):
+    """파싱된 데이터를 비교하고 최종 리포트를 출력합니다."""
+    
+    print("\n" + "="*80)
+    print("MVE API SPEC vs C++ USTRUCTS VALIDATION REPORT")
+    print("="*80 + "\n")
+    
+    checked_structs = set()
+    checked_component_schemas = set()
+    checked_response_schemas = set()
+    
+    # 1. 어노테이션이 달린 C++ 구조체들을 기준으로 검사
+    for key, struct_name in annotations.items():
+        checked_structs.add(struct_name)
+        
+        annotation_type, identifier = key.split(":", 1)
+        
+        schema_props = None
+        if annotation_type == "component":
+            schema_props = component_schemas.get(identifier)
+            checked_component_schemas.add(identifier)
+        elif annotation_type == "response":
+            schema_props = response_schemas.get(identifier)
+            checked_response_schemas.add(identifier)
+
+        # 연결된 스키마 존재 여부 확인
+        if schema_props is None:
+            print(f"❌ [LINK ERROR] Struct '{struct_name}' is linked to a non-existent schema '{identifier}'.")
+            continue
+            
+        struct_props = cpp_structs.get(struct_name, {})
+        discrepancies = []
+
+        # JSON 스키마의 속성들이 C++에 모두 있는지 검사
+        for prop_name, prop_details in schema_props.items():
+            if not isinstance(prop_details, dict): continue
+
+            # Convert camelCase prop_name from JSON schema to PascalCase for C++ comparison
+            expected_cpp_prop_name = to_pascal_case(prop_name)
+
+            if expected_cpp_prop_name not in struct_props:
+                discrepancies.append(f"  - C++ Missing: Property '{prop_name}' (expected '{expected_cpp_prop_name}') is defined in API spec but missing in the struct.")
+                continue
+
+            # Now, cpp_type will be retrieved using the PascalCase name from the C++ struct
+            cpp_type = struct_props[expected_cpp_prop_name]
+            json_type = prop_details.get("type")
+            
+            is_match = False
+            if json_type == "array":
+                if cpp_type.startswith("TArray<"):
+                    # TArray 내부 타입 체크
+                    inner_cpp_type = cpp_type[7:-1]
+                    items_schema = prop_details.get("items", {})
+                    if "$ref" in items_schema:
+                        inner_json_ref = items_schema["$ref"].split('/')[-1]
+                        # inner_json_ref is typically PascalCase, e.g., "AudioFile"
+                        # C++ struct names are F + PascalCase, e.g., "FAudioFile"
+                        expected_inner_cpp_ref = f"F{inner_json_ref}"
+                        if expected_inner_cpp_ref == inner_cpp_type:
+                            is_match = True
+                        else:
+                             discrepancies.append(f"  - Type Mismatch for '{prop_name}' (expected C++ '{expected_cpp_prop_name}'): Array item should be '{expected_inner_cpp_ref}', but found '{inner_cpp_type}'.")
+                    elif "type" in items_schema:
+                        inner_json_type = items_schema["type"]
+                        if any(mapped_type == inner_cpp_type for mapped_type in TYPE_MAPPING.get(inner_json_type, [])):
+                             is_match = True
+                        else:
+                            discrepancies.append(f"  - Type Mismatch for '{prop_name}' (expected C++ '{expected_cpp_prop_name}'): Array item type is '{inner_json_type}' (API), but '{inner_cpp_type}' (C++).")
+                else:
+                    discrepancies.append(f"  - Type Mismatch for '{prop_name}' (expected C++ '{expected_cpp_prop_name}'): Expected 'TArray<...>', but found '{cpp_type}'.")
+
+            elif json_type in TYPE_MAPPING:
+                if cpp_type in TYPE_MAPPING[json_type]:
+                    is_match = True
+                else:
+                    discrepancies.append(f"  - Type Mismatch for '{prop_name}' (expected C++ '{expected_cpp_prop_name}'): Type is '{json_type}' (API), but '{cpp_type}' (C++).")
+            
+            elif json_type == "object":
+                # It's an object, likely a reference to another struct.
+                is_match = False
+                expected_type_str = ""
+                if "$ref" in prop_details:
+                    ref_name = prop_details["$ref"].split('/')[-1]
+                    expected_cpp_type = f"F{ref_name}"
+
+                    # Special mappings for UE types
+                    if ref_name == "Vector3D":
+                        expected_cpp_type = "FVector"
+                    elif ref_name == "Rotator":
+                        expected_cpp_type = "FRotator"
+                    
+                    if cpp_type == expected_cpp_type:
+                        is_match = True
+                    else:
+                        expected_type_str = f"'{expected_cpp_type}' (from $ref: '{ref_name}')"
+
+                # Fallback for inline objects (no $ref) - check if it's any F-prefixed struct
+                elif cpp_type.startswith('F'):
+                    is_match = True
+                    expected_type_str = "any F-prefixed USTRUCT"
+
+                if not is_match:
+                    if not expected_type_str:
+                         expected_type_str = "a USTRUCT (e.g. FMyStruct)"
+                    discrepancies.append(f"  - Type Mismatch for '{prop_name}': C++ type is '{cpp_type}', but schema expects {expected_type_str}.")
+
+        if not discrepancies:
+            print(f"✅ [PASS] '{struct_name}' matches schema for '{identifier}'.")
+        else:
+            print(f"❌ [MISMATCH] '{struct_name}' has mismatches with schema for '{identifier}':")
+            for d in discrepancies:
+                print(d)
+        print("-" * 40)
+
+    # 2. 요약 정보 출력
+    print("\n" + "="*80)
+    print("SUMMARY")
+    print("="*80)
+
+    # 미리 정의된 스키마들을 확인된 목록에 추가
+    for schema_name in PRE_IMPLEMENTED_SCHEMAS:
+        if schema_name in component_schemas:
+            checked_component_schemas.add(schema_name)
+    
+    # 어노테이션 없는 구조체
+    unannotated_structs = set(cpp_structs.keys()) - checked_structs
+    if unannotated_structs:
+        print("\n⚠️ [MISSING ANNOTATION] These C++ structs are not linked to any API schema:")
+        for s in sorted(list(unannotated_structs)):
+            print(f"  - {s}")
+            
+    # 구현되지 않은 컴포넌트 스키마
+    unimplemented_comp_schemas = set(component_schemas.keys()) - checked_component_schemas
+    if unimplemented_comp_schemas:
+        print("\n⚠️ [MISSING STRUCT] These API component schemas are not implemented in C++:")
+        for s in sorted(list(unimplemented_comp_schemas)):
+            print(f"  - {s}")
+
+    # 구현되지 않은 응답 스키마
+    unimplemented_resp_schemas = set(response_schemas.keys()) - checked_response_schemas
+    if unimplemented_resp_schemas:
+        print("\n⚠️ [MISSING STRUCT] These API responses are not implemented in C++:")
+        for s in sorted(list(unimplemented_resp_schemas)):
+            print(f"  - {s}")
+
+# --- MAIN EXECUTION ---
+
+if __name__ == "__main__":
+    
+    project_root = Path(__file__).parent.parent
+    
+    spec_paths = [
+        project_root / "ApiSpecs" / "login-server-api-spec.json",
+        project_root / "ApiSpecs" / "resource-server-api-spec.json",
+    ]
+    cpp_header_path = project_root / "Source" / "MVE" / "API" / "Public" / "MVE_API_ResponseData.h"
+
+    print(f"1. Parsing C++ Header: {cpp_header_path.name}")
+    cpp_structs, annotations = parse_cpp_header(cpp_header_path)
+    
+    print(f"2. Parsing {len(spec_paths)} OpenAPI Spec files...")
+    component_schemas, response_schemas = parse_openapi_specs(spec_paths)
+    
+    if not cpp_structs and not annotations:
+        print("Could not parse C++ header. Exiting.")
+        exit(1)
+    if not component_schemas and not response_schemas:
+        print("Could not parse any API schemas. Exiting.")
+        exit(1)
+        
+    compare_and_report(cpp_structs, annotations, component_schemas, response_schemas)
+
+    print(f"\nValidation script finished. Found {len(cpp_structs)} structs and {len(component_schemas) + len(response_schemas)} schemas.")

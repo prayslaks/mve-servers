@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
+
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 /**
  * 두 서버의 문서를 생성하고 언리얼 프로젝트로 복사하는 통합 스크립트
@@ -18,7 +20,7 @@ const path = require('path');
 // 경로 설정
 const rootDir = path.join(__dirname, '..');
 const outputDir = path.join(__dirname, 'outputs');
-const unrealProjectDir = path.join('c:', 'Users', 'user', 'Documents', 'Unreal Projects', 'MVE');
+const unrealProjectDir = process.env.UNREAL_PROJECT_PATH;
 const unrealApiSpecsDir = path.join(unrealProjectDir, 'ApiSpecs');
 
 // 서버 설정
@@ -85,6 +87,13 @@ async function main() {
   const TAG = '[generate-and-copy-docs]';
   console.log(`${TAG} API 문서 생성 및 복사 시작...`);
   console.log();
+
+  // 환경 변수 확인
+  if (!unrealProjectDir) {
+    console.error(`${TAG} ❌ UNREAL_PROJECT_PATH 환경 변수가 설정되지 않았습니다.`);
+    console.error(`${TAG}    .env 파일에 UNREAL_PROJECT_PATH를 설정해주세요.`);
+    process.exit(1);
+  }
 
   // 언리얼 프로젝트 폴더 확인
   if (!fs.existsSync(unrealProjectDir)) {

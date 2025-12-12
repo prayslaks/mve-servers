@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
+
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 /**
  * API 문서 생성 → 언리얼 복사 → 변경사항 분석 통합 워크플로우
@@ -13,6 +15,8 @@ const path = require('path');
  */
 
 const scriptsDir = __dirname;
+const unrealApiSpecsDir = path.join(process.env.UNREAL_PROJECT_PATH, 'ApiSpecs');
+
 const TAG = '[sync-api-to-unreal]';
 
 console.log(`${TAG} API → 언리얼 동기화 시작...`);
@@ -25,7 +29,7 @@ try {
     shell: true
   });
 } catch (error) {
-  console.error(`${TAG} ❌ 문서 생성 실패`);
+  console.error(`${TAG} API 스펙 문서 생성-복사 실패`);
   process.exit(1);
 }
 
@@ -36,25 +40,24 @@ try {
     shell: true
   });
 } catch (error) {
-  console.error(`${TAG} ❌ 변경사항 분석 실패`);
+  console.error(`${TAG} 변경사항 분석 실패`);
   process.exit(1);
 }
 
 // Step 3: 힌트 파일 언리얼로 복사
 const hintsSourcePath = path.join(scriptsDir, 'outputs', 'unreal-api-change-hints.json');
-const hintsDestPath = 'c:\\Users\\user\\Documents\\Unreal Projects\\MVE\\ApiSpecs\\unreal-api-change-hints.json';
-
+const hintsDestPath = path.join(unrealApiSpecsDir, 'unreal-api-change-hints.json');
 try {
   if (fs.existsSync(hintsSourcePath)) {
     fs.copyFileSync(hintsSourcePath, hintsDestPath);
-    console.log(`${TAG} 📋 힌트 파일 복사 완료`);
+    console.log(`${TAG} 힌트 파일 복사 완료`);
   } else {
-    console.log(`${TAG} ℹ️  힌트 파일 없음 (변경사항 없음)`);
+    console.log(`${TAG} 힌트 파일 없음 (변경사항 없음)`);
   }
 } catch (error) {
-  console.error(`${TAG} ❌ 힌트 파일 복사 실패`);
+  console.error(`${TAG} 힌트 파일 복사 실패: ${error.message}`);
   process.exit(1);
 }
 
 console.log();
-console.log(`${TAG} ✅ 동기화 완료`);
+console.log(`${TAG} 동기화 완료`);
