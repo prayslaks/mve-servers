@@ -108,12 +108,6 @@
             "type": "string",
             "description": "에러 메시지",
             "example": "Invalid request"
-          },
-          "error": {
-            "type": "string",
-            "nullable": true,
-            "description": "상세 에러 정보 (디버깅용)",
-            "example": "Missing required field: username"
           }
         }
       },
@@ -172,6 +166,14 @@
       "AudioFile": {
         "type": "object",
         "description": "음원 파일 정보",
+        "required": [
+          "id",
+          "title",
+          "filePath",
+          "fileSize",
+          "format",
+          "createdAt"
+        ],
         "properties": {
           "id": {
             "type": "integer",
@@ -220,6 +222,15 @@
       "ModelInfo": {
         "type": "object",
         "description": "3D 모델 파일 정보",
+        "required": [
+          "id",
+          "modelName",
+          "filePath",
+          "fileSize",
+          "isAiGenerated",
+          "createdAt",
+          "updatedAt"
+        ],
         "properties": {
           "id": {
             "type": "integer",
@@ -267,6 +278,12 @@
       "AIJobStatus": {
         "type": "object",
         "description": "AI 작업 상태 정보",
+        "required": [
+          "jobId",
+          "status",
+          "prompt",
+          "createdAt"
+        ],
         "properties": {
           "jobId": {
             "type": "string",
@@ -324,6 +341,10 @@
       "DeletedModelInfo": {
         "type": "object",
         "description": "삭제된 모델 정보",
+        "required": [
+          "id",
+          "modelName"
+        ],
         "properties": {
           "id": {
             "type": "integer",
@@ -374,6 +395,15 @@
       "AccessoryPreset": {
         "type": "object",
         "description": "액세서리 프리셋",
+        "required": [
+          "id",
+          "userId",
+          "presetName",
+          "accessories",
+          "isPublic",
+          "createdAt",
+          "updatedAt"
+        ],
         "properties": {
           "id": {
             "type": "integer",
@@ -487,6 +517,19 @@
       "ConcertInfo": {
         "type": "object",
         "description": "콘서트 정보",
+        "required": [
+          "roomId",
+          "studioUserId",
+          "studioName",
+          "concertName",
+          "songs",
+          "accessories",
+          "maxAudience",
+          "createdAt",
+          "isOpen",
+          "currentSong",
+          "currentAudience"
+        ],
         "properties": {
           "roomId": {
             "type": "string",
@@ -3066,7 +3109,7 @@
     "/api/models/generate": {
       "post": {
         "summary": "AI 3D 모델 생성 요청",
-        "description": "프롬프트 또는 이미지를 기반으로 AI가 3D 모델을 생성합니다. 비동기 처리되며 즉시 jobId를 반환합니다.",
+        "description": "프롬프트 또는 이미지를 기반으로 AI가 3D 모델을 생성합니다. 비동기 처리되며 즉시 job_id를 반환합니다.\n\n**백엔드 플로우:**\n1. Resource Server가 요청을 받아 job_id 생성 및 Redis에 저장\n2. AI Server의 `/generate_3D_obj` 엔드포인트로 요청 전달 (ai-client.js 통해)\n3. AI Server가 비동기로 3D 모델 생성 처리\n4. 생성 완료 시 S3 또는 로컬에 GLB 파일 저장 및 DB 등록\n5. Redis job 상태를 'completed'로 업데이트\n",
         "tags": [
           "Models",
           "AI Generation"

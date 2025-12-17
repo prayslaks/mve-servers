@@ -54,6 +54,11 @@
       "User": {
         "type": "object",
         "description": "사용자 정보",
+        "required": [
+          "id",
+          "email",
+          "created_at"
+        ],
         "properties": {
           "id": {
             "type": "integer",
@@ -135,141 +140,6 @@
             "description": "DB 에러 코드 (DB 에러인 경우)",
             "nullable": true,
             "example": "23505"
-          }
-        }
-      },
-      "EmailCheckResponse": {
-        "type": "object",
-        "description": "이메일 중복 확인 응답",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/SuccessResponse"
-          }
-        ],
-        "properties": {
-          "exists": {
-            "type": "boolean",
-            "description": "이메일 사용 중 여부",
-            "example": false
-          }
-        }
-      },
-      "VerificationCodeResponse": {
-        "type": "object",
-        "description": "인증번호 발송 응답",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/SuccessResponse"
-          }
-        ],
-        "properties": {
-          "expiresIn": {
-            "type": "integer",
-            "description": "유효 시간 (초)",
-            "example": 300
-          }
-        }
-      },
-      "RateLimitErrorResponse": {
-        "type": "object",
-        "description": "Rate Limit 에러 응답",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ErrorResponse"
-          }
-        ],
-        "properties": {
-          "retryAfter": {
-            "type": "integer",
-            "description": "재시도 가능 시간 (초)",
-            "example": 60
-          }
-        }
-      },
-      "VerifyCodeErrorResponse": {
-        "type": "object",
-        "description": "인증번호 검증 실패 응답",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ErrorResponse"
-          }
-        ],
-        "properties": {
-          "attemptsRemaining": {
-            "type": "integer",
-            "description": "남은 시도 횟수",
-            "example": 4
-          }
-        }
-      },
-      "SignupResponse": {
-        "type": "object",
-        "description": "회원가입 성공 응답",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/SuccessResponse"
-          }
-        ],
-        "properties": {
-          "user": {
-            "$ref": "#/components/schemas/User"
-          }
-        }
-      },
-      "LoginResponse": {
-        "type": "object",
-        "description": "로그인 성공 응답",
-        "required": [
-          "success",
-          "code",
-          "message",
-          "token",
-          "user"
-        ],
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "example": true
-          },
-          "code": {
-            "type": "string",
-            "example": "LOGIN_SUCCESS"
-          },
-          "message": {
-            "type": "string",
-            "example": "Login successful"
-          },
-          "token": {
-            "type": "string",
-            "description": "JWT 인증 토큰",
-            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-          },
-          "user": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "example": 1
-              },
-              "email": {
-                "type": "string",
-                "example": "test@example.com"
-              }
-            }
-          }
-        }
-      },
-      "ProfileResponse": {
-        "type": "object",
-        "description": "프로필 조회 응답",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/SuccessResponse"
-          }
-        ],
-        "properties": {
-          "user": {
-            "$ref": "#/components/schemas/User"
           }
         }
       }
@@ -782,7 +652,34 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SignupResponse"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "USER_CREATED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User created"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "test@example.com"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -949,7 +846,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "LOGIN_SUCCESS"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Login successful"
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "JWT 토큰",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "test@example.com"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1250,7 +1179,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProfileResponse"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "PROFILE_RETRIEVED"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Profile retrieved successfully"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "test@example.com"
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-01-01T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }

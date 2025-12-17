@@ -3,7 +3,17 @@
 #include "CoreMinimal.h"
 #include "MVE_API_ResponseData.generated.h"
 
-// [공용] 자주 사용되는 데이터 구조체
+// [공용] 모든 MVE API 리스폰스에 포함되는 구조를 매크로화
+
+#define MVE_API_RESPONSE_BASE() \
+    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response") \
+    bool Success = false; \
+    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response") \
+    FString Code; \
+    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response") \
+    FString Message;
+
+// [공용] 일반적인 성공 여부 대응하는 데이터 구조체
 
 /**
  * @MveApiComponentSchema SuccessResponse
@@ -12,13 +22,12 @@ USTRUCT(BlueprintType)
 struct FSuccessResponse
 {
 	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-	bool Success = false;
-	UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-	FString Code;
-	UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-	FString Message;
+    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
+    bool Success = false;
+    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
+    FString Code;
+    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
+    FString Message;
 };
 
 // [공용] 자주 사용되는 데이터 구조체
@@ -82,12 +91,7 @@ USTRUCT(BlueprintType)
 struct FCheckEmailResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     bool Exists = false;
 };
@@ -116,13 +120,7 @@ USTRUCT(BlueprintType)
 struct FSignUpResponseData
 {
     GENERATED_BODY()
-    
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FUser User;
 };
@@ -136,13 +134,7 @@ USTRUCT(BlueprintType)
 struct FLoginResponseData
 {
     GENERATED_BODY()
-    
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FString Token;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
@@ -158,12 +150,7 @@ USTRUCT(BlueprintType)
 struct FProfileResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FUser User;
 };
@@ -183,12 +170,7 @@ USTRUCT(BlueprintType)
 struct FSavePresetResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FString PresetName;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
@@ -207,19 +189,14 @@ USTRUCT(BlueprintType)
 struct FAccessory
 {
     GENERATED_BODY()
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     FString SocketName;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     FVector RelativeLocation = FVector::ZeroVector;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     FRotator RelativeRotation = FRotator::ZeroRotator;
-    
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     float RelativeScale = 1.0f;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     FString ModelUrl;
 };
@@ -254,12 +231,7 @@ USTRUCT(BlueprintType)
 struct FGetPresetListResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     int32 Count = 0;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
@@ -274,12 +246,7 @@ USTRUCT(BlueprintType)
 struct FGetPresetDetailResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FAccessoryPreset Preset;
 };
@@ -294,12 +261,7 @@ USTRUCT(BlueprintType)
 struct FAudioListResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     int32 Count = 0;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
@@ -317,12 +279,7 @@ USTRUCT(BlueprintType)
 struct FStreamAudioResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FString StreamUrl;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
@@ -338,12 +295,7 @@ USTRUCT(BlueprintType)
 struct FUploadAudioResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FAudioFile AudioFile;
 };
@@ -359,12 +311,7 @@ USTRUCT(BlueprintType)
 struct FGetAudioDetailResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FAudioFile AudioFile;
 };
@@ -379,12 +326,7 @@ USTRUCT(BlueprintType)
 struct FConcertCreationData
 {
 	GENERATED_BODY()
-	UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-	bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
 	UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
 	FString RoomId;
 	UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
@@ -417,12 +359,7 @@ USTRUCT(BlueprintType)
 struct FRegisterListenServerData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FListenServer ListenServer;
 };
@@ -437,16 +374,12 @@ USTRUCT(BlueprintType)
 struct FConcertSong
 {
     GENERATED_BODY()
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     int32 SongNum = 0;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     int32 AudioId = 0;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     FString StreamUrl;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     int32 StageDirectionId = 0;
 };
@@ -459,40 +392,28 @@ USTRUCT(BlueprintType)
 struct FConcertInfo
 {
     GENERATED_BODY()
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
-    FString RoomId; // Added
-
+    FString RoomId;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
-    int32 StudioUserId = 0; // Changed from FString to int32
-
+    int32 StudioUserId = 0;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     FString StudioName;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     FString ConcertName;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     TArray<FConcertSong> Songs;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     TArray<FAccessory> Accessories;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     int32 MaxAudience = 0;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
-    int64 CreatedAt = 0; // Changed from FString to int64
-
+    int64 CreatedAt = 0;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     FListenServer ListenServer;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     bool IsOpen = false;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     int32 CurrentSong = 0;
-
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response|Concert")
     int32 CurrentAudience = 0;
 };
@@ -503,12 +424,7 @@ USTRUCT(BlueprintType)
 struct FGetConcertInfoResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FConcertInfo Concert;
 };
@@ -523,12 +439,7 @@ USTRUCT(BlueprintType)
 struct FGetConcertListData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     int32 Count = 0;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
@@ -547,12 +458,7 @@ USTRUCT(BlueprintType)
 struct FGenerateModelResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FString JobId;
 };
@@ -591,12 +497,7 @@ USTRUCT(BlueprintType)
 struct FGetJobStatusResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FAIJobStatus Data;
 };
@@ -610,12 +511,7 @@ USTRUCT(BlueprintType)
 struct FModelListResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     int32 Count = 0;
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
@@ -631,12 +527,7 @@ USTRUCT(BlueprintType)
 struct FUploadModelResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FModelInfo Model;
 };
@@ -662,17 +553,22 @@ USTRUCT(BlueprintType)
 struct FDeleteModelResponseData
 {
     GENERATED_BODY()
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    bool Success = false;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Code;
-    UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
-    FString Message;
+    MVE_API_RESPONSE_BASE()
     UPROPERTY(BlueprintReadOnly, Category="MVE|API Response")
     FDeletedModelInfo DeletedModel;
 };
 DECLARE_DELEGATE_ThreeParams(FOnDeleteModelComplete, bool, const FDeleteModelResponseData&, const FString&);
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FOnDeleteModelCompleteBP, bool, bSuccess, const FDeleteModelResponseData&, ResponseData, const FString&, ErrorCode);
+
+/*
+ *********************************************************************************
+ * [스키마 전용] 데이터 없는 기본 응답 구조체
+ * 스크립트 검증 통과를 위해 선언된 빈 구조체들입니다.
+ * 실제 응답 데이터는 BaseResponse 또는 다른 *ResponseData 구조체를 통해 처리됩니다.
+ *********************************************************************************
+ */
+
+
 
 /*
  *********************************************************************************
@@ -687,4 +583,4 @@ DECLARE_DELEGATE_TwoParams(FOnGenericApiComplete, bool /*bSuccess*/, const FStri
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnGenericApiCompleteBP, bool, bSuccess, const FString&, MessageOrError);
 
 // 기존 FOnApiResponse 는 FOnGenericApiComplete 로 대체될 예정이나, 하위 호환성을 위해 남겨둡니다.
-DECLARE_DELEGATE_FourParams(FOnApiResponse, const bool, const FString&, const FString&, const FString&);
+// DECLARE_DELEGATE_FourParams(FOnApiResponse, const bool, const FString&, const FString&, const FString&);
