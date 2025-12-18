@@ -160,7 +160,7 @@ router.post('/login', async (req, res) => {
 | 필드 | 타입 | 설명 | 예시 |
 |------|------|------|------|
 | `success` | `boolean` | 요청 성공 여부 | `true`, `false` |
-| `code` | `string` (Login) / `integer` (Resource) | 응답 코드 | `"LOGIN_SUCCESS"`, `200` |
+| `code` | `string` | 응답 코드 (Unreal UI 매칭용 문자열) | `"LOGIN_SUCCESS"`, `"INVALID_PROMPT"`, `"MODEL_NOT_FOUND"` |
 | `message` | `string` | 응답 메시지 | `"Login successful"` |
 
 #### Unreal Engine 매크로와의 연동

@@ -422,9 +422,26 @@
                     <div class="response" id="uploadModelResponse"></div>
                 </div>
 
-                <!-- 모델 다운로드 -->
+                <!-- 모델 다운로드 URL 발급 (새 API) -->
                 <div class="api-group">
-                    <h3>GET /api/models/:id/download - Download Model (JWT Required)</h3>
+                    <h3>GET /api/models/:modelId/download-url - Get Model Download URL (JWT Required, Prototype)</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: -5px;">
+                        모델 ID로 다운로드 URL을 발급받습니다. 로컬 환경에서는 /download 엔드포인트 URL, S3 환경에서는 PresignedURL을 반환합니다.
+                    </p>
+                    <div class="input-group">
+                        <label>Model ID</label>
+                        <input type="number" id="getDownloadUrlModelId" placeholder="1">
+                    </div>
+                    <button class="btn-primary" onclick="getModelDownloadUrl()">Get Download URL</button>
+                    <div class="response" id="getDownloadUrlResponse"></div>
+                </div>
+
+                <!-- 모델 다운로드 (레거시 - 로컬 스토리지 전용) -->
+                <div class="api-group">
+                    <h3>GET /api/models/:id/download - Download Model Directly (JWT Required, Local Storage Only)</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: -5px;">
+                        로컬 스토리지 환경에서 모델 파일을 직접 다운로드합니다. download-url API에서 반환된 URL로 호출됩니다.
+                    </p>
                     <div class="input-group">
                         <label>Model ID</label>
                         <input type="number" id="downloadModelId" placeholder="1">
@@ -1425,6 +1442,27 @@
                     status: 'ERROR',
                     duration: `${duration}ms`,
                     error: error.message
+                });
+            }
+        }
+
+        async function getModelDownloadUrl() {
+            const id = document.getElementById('getDownloadUrlModelId').value;
+
+            if (!id) {
+                displayResponse('getDownloadUrlResponse', { error: 'Model ID is required' });
+                return;
+            }
+
+            const response = await apiCall(`${getResourceServerUrl()}/api/models/${id}/download-url`);
+            displayResponse('getDownloadUrlResponse', response);
+
+            // Auto-open download URL if successful
+            if (response.data && response.data.url) {
+                const autoOpenNote = `\n\n📎 Download URL: ${response.data.url}\n⏱️ Expires in: ${response.data.expiresIn || 'N/A (local storage)'} seconds\n💾 Storage Type: ${response.data.storageType}`;
+                displayResponse('getDownloadUrlResponse', {
+                    ...response,
+                    note: autoOpenNote
                 });
             }
         }

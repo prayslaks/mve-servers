@@ -3944,10 +3944,177 @@
         }
       }
     },
+    "/api/models/{modelId}/download-url": {
+      "get": {
+        "summary": "모델 다운로드 URL 발급 (프로토타입)",
+        "description": "모델 ID로 다운로드 가능한 URL을 발급합니다.\n\n- 로컬 스토리지: 다운로드 엔드포인트 URL 반환\n- S3 스토리지: PresignedURL 반환 (5분 만료)\n\n**프로토타입 단계**: 인증된 사용자는 모든 모델의 다운로드 URL을 요청할 수 있습니다.\n",
+        "tags": [
+          "Models"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "modelId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "다운로드할 모델 ID",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "다운로드 URL 발급 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "code",
+                    "message",
+                    "url",
+                    "expiresIn",
+                    "storageType"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Download URL generated successfully"
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "example": "http://localhost:3001/api/models/1/download",
+                      "description": "다운로드 URL (로컬) 또는 PresignedURL (S3)"
+                    },
+                    "expiresIn": {
+                      "type": "integer",
+                      "example": 300,
+                      "description": "URL 만료 시간 (초, S3만 해당)"
+                    },
+                    "storageType": {
+                      "type": "string",
+                      "enum": [
+                        "local",
+                        "s3"
+                      ],
+                      "example": "local",
+                      "description": "스토리지 타입"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "모델을 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Model not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/models/{id}/download": {
       "get": {
-        "summary": "모델 파일 다운로드",
-        "description": "특정 모델의 GLB 파일을 다운로드합니다.",
+        "summary": "모델 파일 다운로드 (로컬 스토리지 전용)",
+        "description": "로컬 스토리지 환경에서 모델 파일을 직접 다운로드합니다.\n이 API는 download-url API에서 반환된 URL을 통해 호출됩니다.\n\n**프로토타입 단계**: 인증된 사용자는 모든 모델을 다운로드할 수 있습니다.\n",
         "tags": [
           "Models"
         ],
@@ -3985,7 +4152,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
                 }
               }
             }
@@ -3995,7 +4181,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Model not found"
+                    }
+                  }
                 }
               }
             }
@@ -4005,7 +4210,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal server error"
+                    }
+                  }
                 }
               }
             }

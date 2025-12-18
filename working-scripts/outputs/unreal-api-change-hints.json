@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generatedAt": "2025-12-17T17:45:50.096Z",
+    "generatedAt": "2025-12-18T08:14:27.284Z",
     "version": "1.0.0",
     "description": "Swagger Spec 변경사항 기반 언리얼 C++ 코드 변경 힌트"
   },
@@ -34,11 +34,11 @@
     {
       "serverName": "Resource Server",
       "summary": {
-        "totalEndpoints": 38,
+        "totalEndpoints": 39,
         "addedEndpoints": 0,
         "removedEndpoints": 0,
         "modifiedEndpoints": 0,
-        "unchangedEndpoints": 38
+        "unchangedEndpoints": 39
       },
       "changes": {
         "newEndpoints": [],
