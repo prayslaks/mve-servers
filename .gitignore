@@ -22,3 +22,6 @@ npm-debug.log*
 # Logs
 logs/
 *.log
+
+# Working Scripts Outputs
+working-scripts/outputs/
