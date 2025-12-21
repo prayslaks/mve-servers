@@ -78,6 +78,37 @@
             0%, 50% { opacity: 1; }
             100% { opacity: 0; }
         }
+        .api-example {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 8px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+        .api-example-title {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+        .api-example-line {
+            padding: 2px 0;
+            color: #333;
+        }
+        .api-example-type {
+            color: #1976d2;
+            font-weight: 600;
+        }
+        .api-example-content {
+            color: #2e7d32;
+        }
+        .api-example-note {
+            color: #f57c00;
+            font-style: italic;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -182,6 +213,12 @@
                 <!-- 회원가입 -->
                 <div class="api-group">
                     <h3>POST /api/auth/signup - Sign Up (Requires Verified Email)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request Body (JSON)</div>
+                        <div class="api-example-line"><span class="api-example-type">email:</span> <span class="api-example-content">string (verified email)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">code:</span> <span class="api-example-content">string (6-digit verification code)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">password:</span> <span class="api-example-content">string (min 6 characters)</span></div>
+                    </div>
                     <div class="flex">
                         <div class="input-group">
                             <label>Email (must be verified)</label>
@@ -203,6 +240,11 @@
                 <!-- 로그인 -->
                 <div class="api-group">
                     <h3>POST /api/auth/login - Login</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request Body (JSON)</div>
+                        <div class="api-example-line"><span class="api-example-type">email:</span> <span class="api-example-content">string</span></div>
+                        <div class="api-example-line"><span class="api-example-type">password:</span> <span class="api-example-content">string</span></div>
+                    </div>
                     <div class="flex">
                         <div class="input-group">
                             <label>Email</label>
@@ -252,6 +294,11 @@
                 <!-- 음원 목록 -->
                 <div class="api-group">
                     <h3>GET /api/audio/list - Get Audio List (JWT Required)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request</div>
+                        <div class="api-example-line"><span class="api-example-content">No parameters required</span></div>
+                        <div class="api-example-note">* JWT 토큰을 Authorization 헤더에 포함</div>
+                    </div>
                     <button class="btn-primary" onclick="getAudioList()">Get Audio List</button>
                     <div class="response" id="audioListResponse"></div>
                 </div>
@@ -259,6 +306,11 @@
                 <!-- 음원 정보 -->
                 <div class="api-group">
                     <h3>GET /api/audio/:id - Get Audio Info (JWT Required)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request (URL Parameter)</div>
+                        <div class="api-example-line"><span class="api-example-type">id:</span> <span class="api-example-content">number (audio ID)</span></div>
+                        <div class="api-example-note">* JWT 토큰을 Authorization 헤더에 포함</div>
+                    </div>
                     <div class="input-group">
                         <label>Audio ID</label>
                         <input type="number" id="audioId" placeholder="Enter Audio ID">
@@ -281,6 +333,13 @@
                 <!-- 음원 업로드 -->
                 <div class="api-group">
                     <h3>POST /api/audio/upload - Upload Audio (JWT Required)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request Body (multipart/form-data)</div>
+                        <div class="api-example-line"><span class="api-example-type">audio:</span> <span class="api-example-content">File (AAC, M4A, MP3, WAV)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">title:</span> <span class="api-example-content">string (required)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">artist:</span> <span class="api-example-content">string (optional)</span></div>
+                        <div class="api-example-note">* Content-Type: multipart/form-data로 전송</div>
+                    </div>
                     <div class="flex">
                         <div class="input-group">
                             <label>Title</label>
@@ -302,6 +361,11 @@
                 <!-- 음원 파일 서버 경로 획득 -->
                 <div class="api-group">
                     <h3>GET /api/audio/stream/:id - Get Audio Url (JWT Required)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request (URL Parameter)</div>
+                        <div class="api-example-line"><span class="api-example-type">id:</span> <span class="api-example-content">number (audio ID)</span></div>
+                        <div class="api-example-note">* JWT 토큰을 Authorization 헤더에 포함</div>
+                    </div>
                     <div class="input-group">
                         <label>Audio ID</label>
                         <input type="number" id="targetAudioId" placeholder="Enter Audio ID">
@@ -343,6 +407,12 @@
                 <div class="api-group">
                     <h3>POST /api/models/generate - Generate 3D Model from Image (JWT Required)</h3>
                     <p style="font-size: 12px; color: #666; margin-top: -5px;">즉시 job_id를 반환합니다. 백그라운드에서 AI 서버가 처리를 시작합니다.</p>
+                    <div class="api-example">
+                        <div class="api-example-title">Request Body (multipart/form-data)</div>
+                        <div class="api-example-line"><span class="api-example-type">image:</span> <span class="api-example-content">File (PNG)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">prompt:</span> <span class="api-example-content">string</span></div>
+                        <div class="api-example-note">* Content-Type: multipart/form-data로 전송</div>
+                    </div>
                     <div class="input-group">
                         <label>PNG Image File</label>
                         <input type="file" id="generateImageFile" accept=".png">
@@ -361,6 +431,11 @@
                     <p style="font-size: 12px; color: #666; margin-top: -5px;">
                         작업 상태: <span style="color: #ff9800;">queued</span> → <span style="color: #2196f3;">processing</span> → <span style="color: #4caf50;">completed</span> / <span style="color: #f44336;">failed</span>
                     </p>
+                    <div class="api-example">
+                        <div class="api-example-title">Request (URL Parameter)</div>
+                        <div class="api-example-line"><span class="api-example-type">job_id:</span> <span class="api-example-content">string (UUID from generate response)</span></div>
+                        <div class="api-example-note">* JWT 토큰을 Authorization 헤더에 포함</div>
+                    </div>
                     <div class="input-group">
                         <label>Job ID</label>
                         <input type="text" id="jobId" placeholder="uuid-from-generate-response">
@@ -406,6 +481,13 @@
                 <!-- 모델 업로드 (수동) -->
                 <div class="api-group">
                     <h3>POST /api/models/upload - Upload Model Manually (JWT Required)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request Body (multipart/form-data)</div>
+                        <div class="api-example-line"><span class="api-example-type">model:</span> <span class="api-example-content">File (.glb, .fbx, .obj)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">model_name:</span> <span class="api-example-content">string (optional)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">thumbnail:</span> <span class="api-example-content">File (PNG, JPG - optional)</span></div>
+                        <div class="api-example-note">* Content-Type: multipart/form-data로 전송</div>
+                    </div>
                     <div class="input-group">
                         <label>Model Name (Optional)</label>
                         <input type="text" id="uploadModelName" placeholder="My Model">
@@ -510,6 +592,13 @@
                 <!-- 엑세서리 프리셋 저장 -->
                 <div class="api-group">
                     <h3>POST /api/accessory-presets/save - Save Preset (JWT Required)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request Body (JSON)</div>
+                        <div class="api-example-line"><span class="api-example-type">presetName:</span> <span class="api-example-content">string (required)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">description:</span> <span class="api-example-content">string (optional)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">accessories:</span> <span class="api-example-content">array of Accessory (required)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">isPublic:</span> <span class="api-example-content">boolean (default: false)</span></div>
+                    </div>
                     <div class="input-group">
                         <label>Preset Name</label>
                         <input type="text" id="presetName" placeholder="My Preset">
@@ -593,6 +682,13 @@
                 <!-- Create Concert -->
                 <div class="api-group">
                     <h3>POST /api/concert/create - Create Concert (JWT Required)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request Body (JSON)</div>
+                        <div class="api-example-line"><span class="api-example-type">concertName:</span> <span class="api-example-content">string (required)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">maxAudience:</span> <span class="api-example-content">number (optional)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">songs:</span> <span class="api-example-content">array of ConcertSong (optional)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">accessories:</span> <span class="api-example-content">array of Accessory (optional)</span></div>
+                    </div>
                     <div class="input-group">
                         <label>콘서트 이름</label>
                         <input type="text" id="concertName" placeholder="My First Concert">
@@ -601,7 +697,7 @@
                         <label>최대 관객 수 (Optional)</label>
                         <input type="number" id="concertMaxAudience" placeholder="100">
                     </div>
-                    <div class="input-group">
+                    <!-- <div class="input-group">
                         <label>Songs JSON (Optional)</label>
                         <textarea id="concertSongsJson" placeholder='[{"songNum":1,"audioId":1,"streamUrl":"/api/audio/stream/1","stageDirectionId":10}]'></textarea>
                         <div class="example-box" onclick="copyToInput('concertSongsJson', '[{&quot;songNum&quot;:1,&quot;audioId&quot;:1,&quot;streamUrl&quot;:&quot;/api/audio/stream/1&quot;,&quot;stageDirectionId&quot;:10}]', this)">[{"songNum":1,"audioId":1,"streamUrl":"/api/audio/stream/1","stageDirectionId":10}]</div>
@@ -610,7 +706,7 @@
                         <label>Accessories JSON (Optional)</label>
                         <textarea id="concertAccessoriesJson" placeholder='[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]'></textarea>
                         <div class="example-box" onclick="copyToInput('concertAccessoriesJson', '[{&quot;socketName&quot;:&quot;head_socket&quot;,&quot;relativeLocation&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;z&quot;:10},&quot;relativeRotation&quot;:{&quot;pitch&quot;:0,&quot;yaw&quot;:0,&quot;roll&quot;:0},&quot;modelUrl&quot;:&quot;/models/hat.glb&quot;}]', this)">[{"socketName":"head_socket","relativeLocation":{"x":0,"y":0,"z":10},"relativeRotation":{"pitch":0,"yaw":0,"roll":0},"modelUrl":"/models/hat.glb"}]</div>
-                    </div>
+                    </div> -->
                     <button class="btn-primary" onclick="createConcert()">Create Concert</button>
                     <div class="response" id="createConcertResponse"></div>
                 </div>
@@ -618,6 +714,14 @@
                 <!-- Update Listen Server -->
                 <div class="api-group">
                     <h3>POST /api/concert/:roomId/listen-server - Update Listen Server (JWT Required, Studio Only)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request Body (JSON)</div>
+                        <div class="api-example-line"><span class="api-example-type">localIP:</span> <span class="api-example-content">string (required)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">port:</span> <span class="api-example-content">number (required)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">publicIP:</span> <span class="api-example-content">string (optional)</span></div>
+                        <div class="api-example-line"><span class="api-example-type">publicPort:</span> <span class="api-example-content">number (optional)</span></div>
+                        <div class="api-example-note">* URL 파라미터: roomId (concert room ID)</div>
+                    </div>
                     <div class="input-group">
                         <label>Room ID</label>
                         <input type="text" id="listenServerRoomId" placeholder="concert_1234567890_abc123">
@@ -864,6 +968,11 @@
                 <!-- List Concerts -->
                 <div class="api-group">
                     <h3>GET /api/concert/list - List Active Concerts (JWT Required)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request</div>
+                        <div class="api-example-line"><span class="api-example-content">No parameters required</span></div>
+                        <div class="api-example-note">* JWT 토큰을 Authorization 헤더에 포함</div>
+                    </div>
                     <button class="btn-primary" onclick="listConcerts()">List Concerts</button>
                     <div class="response" id="listConcertsResponse"></div>
                 </div>
@@ -871,6 +980,11 @@
                 <!-- Get Concert Info -->
                 <div class="api-group">
                     <h3>GET /api/concert/:roomId/info - Get Concert Info (JWT Required)</h3>
+                    <div class="api-example">
+                        <div class="api-example-title">Request (URL Parameter)</div>
+                        <div class="api-example-line"><span class="api-example-type">roomId:</span> <span class="api-example-content">string (concert room ID)</span></div>
+                        <div class="api-example-note">* JWT 토큰을 Authorization 헤더에 포함</div>
+                    </div>
                     <div class="input-group">
                         <label>Room ID</label>
                         <input type="text" id="infoRoomId" placeholder="concert_1234567890_abc123">
@@ -1606,8 +1720,10 @@
         async function createConcert() {
             const concertName = document.getElementById('concertName').value;
             const maxAudience = document.getElementById('concertMaxAudience').value;
-            const songsJson = document.getElementById('concertSongsJson').value;
-            const accessoriesJson = document.getElementById('concertAccessoriesJson').value;
+            const songsJsonElement = document.getElementById('concertSongsJson');
+            const songsJson = songsJsonElement ? songsJsonElement.value : '';
+            const accessoriesJsonElement = document.getElementById('concertAccessoriesJson');
+            const accessoriesJson = accessoriesJsonElement ? accessoriesJsonElement.value : '';
 
             if (!concertName) {
                 displayResponse('createConcertResponse', { error: 'concertName is required' });
@@ -1615,7 +1731,9 @@
             }
 
             const body = {
-                concertName
+                concertName,
+                songs: [],  // 기본값: 빈 배열
+                accessories: []  // 기본값: 빈 배열
             };
 
             if (maxAudience) {

@@ -448,14 +448,84 @@ Request->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + ActualJWTToken);
 
 ## 기술 스택
 
-- **Node.js** - 런타임 환경
-- **Express** - 웹 프레임워크
-- **PostgreSQL** - 관계형 데이터베이스
-- **Redis** - 인메모리 데이터 저장소 (이메일 인증, 콘서트 세션 관리)
-- **JWT** - 인증 토큰
-- **PM2** - 프로세스 관리
-- **Nginx** - 리버스 프록시
-- **AWS S3** - 파일 스토리지 (프로덕션)
+### 공통 (Both Servers)
+
+**런타임 & 프레임워크**
+- **Node.js** v20.x+ - JavaScript 런타임 환경
+- **Express** v5.1.0 - 웹 애플리케이션 프레임워크
+- **dotenv** - 환경 변수 관리
+
+**데이터베이스 & 캐시**
+- **PostgreSQL** - 관계형 데이터베이스 (사용자, 리소스 메타데이터)
+- **pg** v8.16.3 - PostgreSQL 클라이언트 라이브러리
+- **Redis** v4.7.0 - 인메모리 데이터 저장소 (이메일 인증, 콘서트 세션, Rate Limiting)
+
+**보안 & 인증**
+- **jsonwebtoken** v9.0.2 - JWT 기반 인증 토큰 생성/검증
+- **cors** v2.8.5 - Cross-Origin Resource Sharing 처리
+
+**인프라 (프로덕션)**
+- **PM2** - Node.js 프로세스 관리자
+- **Nginx** - 리버스 프록시 및 로드 밸런서
+- **AWS EC2** - 서버 호스팅 (Ubuntu)
+- **AWS S3** - 클라우드 파일 스토리지
+
+### mve-login-server (인증 서버)
+
+**보안**
+- **bcrypt** v6.0.0 - 비밀번호 해싱 (salt rounds: 10)
+
+**이메일 인증**
+- **nodemailer** v7.0.10 - SMTP 이메일 전송 (인증번호 발송)
+
+**API 문서화**
+- **swagger-jsdoc** v6.2.8 - OpenAPI 3.0 스펙 생성
+- **swagger-ui-express** v5.0.1 - Swagger UI 제공
+
+### mve-resource-server (리소스 서버)
+
+**파일 스토리지**
+- **AWS SDK v3**
+  - **@aws-sdk/client-s3** v3.705.0 - S3 클라이언트
+  - **@aws-sdk/s3-request-presigner** v3.705.0 - Presigned URL 생성
+- **multer** v1.4.5-lts.1 - 멀티파트 파일 업로드 처리
+- **multer-s3** v3.0.1 - S3 직접 업로드 미들웨어
+
+**외부 API 연동**
+- **axios** v1.13.2 - HTTP 클라이언트 (AI 모델 생성 API 호출)
+- **node-fetch** v3.3.2 - Fetch API 구현
+- **form-data** v4.0.5 - Multipart/form-data 생성
+
+**개발 도구**
+- **nodemon** v3.0.1 - 개발 시 자동 재시작
+
+### Unreal Engine 연동
+
+**검증 도구**
+- **Python 3.x** - C++ 구조체와 API 스펙 검증 스크립트
+- **OpenAPI 3.0** - API 스펙 표준 형식
+
+**C++ 매크로**
+- `MVE_API_RESPONSE_BASE` - 공통 API 응답 필드 자동 추가
+
+---
+
+## 시스템 요구사항
+
+### 개발 환경
+- **Node.js**: v20.x 이상
+- **PostgreSQL**: v12 이상
+- **Redis**: v6 이상
+- **Python**: 3.7 이상 (Unreal 검증 스크립트)
+- **Git**: 2.x 이상
+
+### 프로덕션 환경
+- **OS**: Ubuntu 20.04 LTS 이상
+- **Node.js**: v20.x
+- **PostgreSQL**: v12+
+- **Redis**: v6+
+- **Nginx**: v1.18+
+- **AWS 계정**: S3 버킷 및 EC2 인스턴스
 
 ---
 
