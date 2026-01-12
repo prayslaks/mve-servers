@@ -13,10 +13,89 @@
 
 ---
 
+## 목차
+
+- [서브모듈 구성](#서브모듈-구성)
+- [주요 기능](#주요-기능)
+- [아키텍처](#아키텍처)
+- [최초 1회 AWS EC2 배포 환경 설정](#최초-1회-aws-ec2-배포-환경-설정)
+- [최초 1회 AWS EC2 배포 이후 업데이트](#최초-1회-aws-ec2-배포-이후-업데이트)
+- [Windows 로컬 개발 환경 설정](#windows-로컬-개발-환경-설정)
+- [개발용 토큰 인증 우회](#개발용-토큰-인증-우회-unreal-engine-개발-빌드용)
+- [AWS EC2 보안 그룹 설정](#aws-ec2-보안-그룹-설정)
+- [기술 스택](#기술-스택)
+- [시스템 요구사항](#시스템-요구사항)
+- [API 문서 자동 생성](#api-문서-자동-생성)
+- [문서](#문서)
+- [라이선스](#라이선스)
+
+---
+
 ## 서브모듈 구성
 
 - **[mve-login-server](mve-login-server/)** - 인증 전용 서버 (회원가입, 로그인, 로그아웃, 회원탈퇴, JWT 토큰 발급)
 - **[mve-resource-server](mve-resource-server/)** - 리소스 파일 관리 서버 (음원 스트리밍, 3D 모델 경로 관리)
+
+---
+
+## 주요 기능
+
+### mve-login-server (Port 3000)
+
+**인증 시스템**
+- ✅ JWT 기반 인증 (토큰 발급 및 검증)
+- ✅ 이메일 인증 시스템 (6자리 인증번호, SMTP)
+- ✅ bcrypt 비밀번호 해싱 (salt rounds: 10)
+- ✅ Redis 기반 인증번호 저장 및 Rate Limiting
+- ✅ 입력값 유효성 검증
+
+**API 엔드포인트**
+- 이메일 중복 확인
+- 인증번호 발송 및 검증
+- 회원가입
+- 로그인
+- 프로필 조회
+
+### mve-resource-server (Port 3001)
+
+**음원 파일 (공용 - 로그인한 모든 유저 접근 가능)**
+- ✅ 음원 목록 조회
+- ✅ 음원 스트리밍 (S3: Presigned URL / 로컬: Range Request)
+- ✅ 음원 업로드 (AAC, M4A, MP3, WAV 지원)
+- ✅ 음원 검색 (제목, 아티스트)
+- ✅ 포맷: **AAC (.m4a)** - 압축률 우수, 스트리밍 최적화
+
+**3D 모델 파일 (개인 - 소유자만 접근 가능)**
+- ✅ 내 모델 목록 조회
+- ✅ 모델 업로드/수정/삭제
+- ✅ 모델 다운로드 (Presigned URL)
+- ✅ 포맷: **GLB** (glTF Binary)
+- ✅ 보안: 사용자별 접근 제어 (자신의 모델만 접근)
+
+**AI 3D 모델 생성**
+- ✅ AI 생성 요청 (프롬프트 기반)
+- ✅ AI 생성 요청 (이미지 + 프롬프트)
+- ✅ 작업 상태 조회 (job_id 기반)
+- ✅ Redis 기반 작업 큐 관리
+- ✅ 비동기 처리 (요청 즉시 응답, 백그라운드 생성)
+
+**콘서트 시스템**
+- ✅ 콘서트 생성/참가/관리
+- ✅ 노래 추가/제거/변경 (스튜디오 전용)
+- ✅ 액세서리 추가/제거/업데이트 (스튜디오 전용)
+- ✅ 리슨 서버 정보 관리
+- ✅ Redis 기반 세션 관리
+
+**액세서리 프리셋**
+- ✅ 프리셋 저장/조회/수정/삭제
+- ✅ 공개/비공개 설정
+
+**공통**
+- ✅ JWT 토큰 검증 (모든 API에 적용)
+- ✅ PostgreSQL 데이터베이스 (리소스 메타데이터 저장)
+- ✅ Redis (콘서트 세션 및 AI 작업 관리)
+- ✅ OpenAPI 3.0 스펙 자동 생성
+- ✅ Unreal Engine C++ 구조체 연동 검증
 
 ---
 
@@ -430,7 +509,7 @@ Request->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + ActualJWTToken);
 - `NODE_ENV=development`일 때만 작동
 - 프로덕션 환경(`NODE_ENV=production`)에서는 **절대 활성화되지 않음**
 - 개발용 토큰 사용 시 가상 사용자 정보(`dev-user-01`) 자동 할당
-- 자세한 내용은 [mve-resource-server](mve-resource-server/) 참조
+- 자세한 내용은 [mve-resource-server README](mve-resource-server/README.md#개발용-토큰-인증-우회-unreal-engine-개발-빌드용) 참조
 
 ---
 
@@ -453,7 +532,7 @@ Request->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + ActualJWTToken);
 **런타임 & 프레임워크**
 - **Node.js** v20.x+ - JavaScript 런타임 환경
 - **Express** v5.1.0 - 웹 애플리케이션 프레임워크
-- **dotenv** - 환경 변수 관리
+- **dotenv** v17.2.3 - 환경 변수 관리
 
 **데이터베이스 & 캐시**
 - **PostgreSQL** - 관계형 데이터베이스 (사용자, 리소스 메타데이터)
@@ -463,6 +542,12 @@ Request->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + ActualJWTToken);
 **보안 & 인증**
 - **jsonwebtoken** v9.0.2 - JWT 기반 인증 토큰 생성/검증
 - **cors** v2.8.5 - Cross-Origin Resource Sharing 처리
+
+**API 문서화**
+- **swagger-jsdoc** - JSDoc 주석에서 OpenAPI 3.0 스펙 자동 생성
+  - `schemas/api-schemas.js`: Component Schema 정의 (단일 소스)
+  - `routes/*.js`: Swagger 주석으로 Response Schema 인라인 정의
+  - `working-scripts/generate-api-specs.js`: OpenAPI 스펙 생성 스크립트
 
 **인프라 (프로덕션)**
 - **PM2** - Node.js 프로세스 관리자
@@ -479,8 +564,12 @@ Request->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + ActualJWTToken);
 - **nodemailer** v7.0.10 - SMTP 이메일 전송 (인증번호 발송)
 
 **API 문서화**
-- **swagger-jsdoc** v6.2.8 - OpenAPI 3.0 스펙 생성
-- **swagger-ui-express** v5.0.1 - Swagger UI 제공
+- **swagger-ui-express** v5.0.1 - Swagger UI 제공 (`/api-docs`)
+
+**현재 정의된 Component Schema (3개)**
+- `User` - 사용자 정보 (id, email, created_at)
+- `SuccessResponse` - 기본 성공 응답 (success, code, message)
+- `ErrorResponse` - 에러 응답 (success, code, message, details?, dbCode?)
 
 ### mve-resource-server (리소스 서버)
 
@@ -499,14 +588,24 @@ Request->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + ActualJWTToken);
 **개발 도구**
 - **nodemon** v3.0.1 - 개발 시 자동 재시작
 
+**현재 정의된 Component Schema (12개)**
+- `BaseResponse`, `ErrorResponse` - 공통 응답 타입
+- `Vector3D`, `Rotator` - 기하학적 데이터
+- `AudioFile` - 음원 파일 정보
+- `ModelInfo`, `AIJobStatus`, `DeletedModelInfo` - 모델 관련
+- `Accessory`, `AccessoryPreset` - 액세서리 관련
+- `ConcertSong`, `ListenServer`, `ConcertInfo` - 콘서트 관련
+
 ### Unreal Engine 연동
 
 **검증 도구**
-- **Python 3.x** - C++ 구조체와 API 스펙 검증 스크립트
+- **Python 3.x** - C++ 구조체와 API 스펙 검증 스크립트 구동
 - **OpenAPI 3.0** - API 스펙 표준 형식
-
-**C++ 매크로**
-- `MVE_API_RESPONSE_BASE` - 공통 API 응답 필드 자동 추가
+- **검증 스크립트**: `unreal/unreal-rider-python-validation-tool.example`
+  - API 스펙의 모든 엔드포인트가 C++ 구조체로 정의되었는지 확인
+  - Component Schema가 모두 USTRUCT로 존재하는지 확인
+  - Required 필드가 모두 UPROPERTY로 정의되었는지 확인
+  - MVE_API_RESPONSE_BASE 매크로 필드 자동 인식
 
 ---
 
@@ -526,6 +625,85 @@ Request->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + ActualJWTToken);
 - **Redis**: v6+
 - **Nginx**: v1.18+
 - **AWS 계정**: S3 버킷 및 EC2 인스턴스
+
+---
+
+## API 문서 자동 생성
+
+이 프로젝트는 코드 주석에서 OpenAPI 3.0 스펙을 자동 생성합니다.
+
+### 문서 생성 워크플로우
+
+```bash
+# Login Server
+cd mve-login-server
+npm run docs
+
+# Resource Server
+cd mve-resource-server
+npm run docs
+```
+
+**생성 파일:**
+- `mve-login-server/working-scripts/outputs/api-spec.json`
+- `mve-resource-server/working-scripts/outputs/resource-server-api-spec.json`
+
+### 설계 원칙 (CLAUDE.md 참조)
+
+**Component Schema (재사용 가능한 타입)**
+- 정의 위치: `schemas/api-schemas.js` (단일 소스)
+- Unreal Engine 구조체와 매칭됨
+- 양쪽 서버 합계 15개 스키마 정의
+
+**Response Schema (엔드포인트별 응답)**
+- 정의 위치: `routes/*.js` (Swagger 주석 인라인)
+- Component Schema를 `$ref`로 참조
+- 공통 필드 (`success`, `code`, `message`) + 추가 필드 구조
+
+### API 추가 시 체크리스트
+
+1. 새로운 재사용 타입이 필요한가? → `schemas/api-schemas.js`에 추가
+2. `routes/*.js`에 Swagger 주석 작성 (requestBody, responses)
+3. `npm run docs` 실행하여 OpenAPI 스펙 생성
+4. 생성된 `api-spec.json`을 [Swagger Editor](https://editor.swagger.io/)에서 확인
+5. Git 커밋에 `working-scripts/outputs/*.json` 포함
+
+### Unreal Engine 연동 검증
+
+프로젝트 루트에서 Python 검증 스크립트 실행:
+```bash
+python unreal/unreal-rider-python-validation-tool.example
+```
+
+**검증 항목:**
+- API 스펙의 모든 엔드포인트가 C++ 구조체로 정의되었는지 확인
+- Component Schema가 모두 USTRUCT로 존재하는지 확인
+- Required 필드가 모두 UPROPERTY로 정의되었는지 확인
+- MVE_API_RESPONSE_BASE 매크로 필드 자동 인식
+
+---
+
+## 문서
+
+### 사용자 문서
+
+**mve-login-server:**
+- **[API_RESPONSES.md](mve-login-server/docs/API_RESPONSES.md)** - API 응답 형식 및 전체 오류 코드 목록
+- **[API_TEST.md](mve-login-server/docs/API_TEST.md)** - 상세한 API 테스트 방법 및 예제
+- **[ENV_SETUP.md](mve-login-server/docs/ENV_SETUP.md)** - 환경 변수 설정
+
+**mve-resource-server:**
+- **[API_RESPONSES.md](mve-resource-server/docs/API_RESPONSES.md)** - API 응답 형식 및 전체 오류 코드 목록
+- **[API_TEST.md](mve-resource-server/docs/API_TEST.md)** - 상세한 API 테스트 방법 및 예제
+- **[ENV_SETUP.md](mve-resource-server/docs/ENV_SETUP.md)** - 환경 변수 설정
+- **[AWS_S3_SETUP.md](mve-resource-server/docs/AWS_S3_SETUP.md)** - AWS S3 설정
+
+### 개발자 문서
+- **[CLAUDE.md](CLAUDE.md)** - Claude AI 작업 가이드
+  - API 추가/수정 프로세스
+  - Component Schema vs Response Schema 설계 원칙
+  - Unreal Engine 연동 검증 방법
+  - 엄격한 API 응답 구조 규칙
 
 ---
 
